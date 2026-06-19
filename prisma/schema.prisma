@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+  role     String @default("STAFF") // ADMIN or STAFF
+}
+
+model Dealer {
+  id                    String     @id @default(cuid())
+  name                  String
+  mobile                String
+  whatsapp              String?
+  shopName              String
+  city                  String
+  address               String
+  gstNumber             String?
+  openingPendingBalance Int        @default(0)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  claims                Claim[]
+  deliveries            Delivery[]
+}
+
+model Company {
+  id            String   @id @default(cuid())
+  name          String
+  brandName     String
+  contactPerson String?
+  mobile        String?
+  address       String?
+  claims        Claim[]
+  batches       Batch[]
+}
+
+model Claim {
+  id              String         @id @default(cuid())
+  claimNumber     String         @unique
+  date            DateTime       @default(now())
+  dealerId        String
+  dealer          Dealer         @relation(fields: [dealerId], references: [id])
+  customerName    String?
+  customerMobile  String?
+  companyId       String
+  company         Company        @relation(fields: [companyId], references: [id])
+  batteryModel    String
+  oldSerialNumber String
+  batteryType     String
+  warrantyCard    String?
+  saleDate        DateTime?
+  problem         String
+  status          String         @default("Received from Dealer") 
+  remarks         String?
+  photoUrl        String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  batchId         String?
+  batch           Batch?         @relation(fields: [batchId], references: [id])
+  deliveryItems   DeliveryItem[]
+}
+
+model Batch {
+  id          String   @id @default(cuid())
+  batchNumber String   @unique
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  sentDate    DateTime @default(now())
+  status      String   @default("Sent")
+  remarks     String?
+  claims      Claim[]
+}
+
+model Delivery {
+  id             String         @id @default(cuid())
+  deliveryNumber String         @unique
+  date           DateTime       @default(now())
+  dealerId       String
+  dealer         Dealer         @relation(fields: [dealerId], references: [id])
+  quantity       Int            @default(0)
+  remarks        String?
+  items          DeliveryItem[]
+}
+
+model DeliveryItem {
+  id              String   @id @default(cuid())
+  deliveryId      String
+  delivery        Delivery @relation(fields: [deliveryId], references: [id])
+  claimId         String   @unique
+  claim           Claim    @relation(fields: [claimId], references: [id])
+  newSerialNumber String?
+}
