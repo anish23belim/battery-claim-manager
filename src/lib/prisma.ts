@@ -1,6 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import type { PrismaClient as PrismaClientType } from "@prisma/client";
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+// Use require to bypass Turbopack's bug with Prisma in Next.js 16
+const { PrismaClient } = require("../../node_modules/.prisma/client");
+
+const globalForPrisma = global as unknown as { prisma: PrismaClientType };
 
 export const prisma = globalForPrisma.prisma || new PrismaClient();
 
