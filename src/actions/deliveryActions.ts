@@ -60,3 +60,24 @@ export async function createDelivery(formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/deliveries");
 }
+
+
+export async function deleteDelivery(id: string) {
+  await prisma.(async (tx) => {
+    const items = await tx.deliveryItem.findMany({ where: { deliveryId: id } });
+    const claimIds = items.map(i => i.claimId);
+    if (claimIds.length > 0) {
+      await tx.claim.updateMany({ where: { id: { in: claimIds } }, data: { status: 'Replacement Received from Company' } });
+      const delivery = await tx.delivery.findUnique({ where: { id } });
+      if (delivery) {
+        await tx.dealer.update({
+          where: { id: delivery.dealerId },
+          data: { openingPendingBalance: { increment: claimIds.length } }
+        });
+      }
+    }
+    await tx.deliveryItem.deleteMany({ where: { deliveryId: id } });
+    await tx.delivery.delete({ where: { id } });
+  });
+  revalidatePath('/', 'layout');
+}

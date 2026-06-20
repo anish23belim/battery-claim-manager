@@ -2,6 +2,8 @@ import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { Plus, Search, Eye } from "lucide-react";
+import DeleteButton from "@/components/common/DeleteButton";
+import { deleteClaim } from "@/actions/claimActions";
 import { format } from "date-fns";
 
 
@@ -81,9 +83,12 @@ export default async function ClaimsPage() {
                       </span>
                     </td>
                     <td style={{ textAlign: "center" }}>
-                      <Link href={`/claims/${claim.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="View Details">
-                        <Eye size={16} />
-                      </Link>
+                      <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
+                        <Link href={`/claims/${claim.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="View Details">
+                          <Eye size={16} />
+                        </Link>
+                        <DeleteButton id={claim.id} action={deleteClaim} entityName="claim" />
+                      </div>
                     </td>
                   </tr>
                 ))

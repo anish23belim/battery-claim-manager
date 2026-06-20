@@ -2,6 +2,8 @@ import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { Plus, Search , Pencil } from "lucide-react";
+import DeleteButton from "@/components/common/DeleteButton";
+import { deleteCompany } from "@/actions/companyActions";
 
 
 
@@ -56,9 +58,12 @@ export default async function CompaniesPage() {
                     <td>{company.contactPerson || "-"}</td>
                     <td>{company.mobile || "-"}</td>
                     <td style={{ textAlign: "center" }}>
-                      <Link href={`/companies/${company.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="Edit Details">
-                        <Pencil size={16} />
-                      </Link>
+                      <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
+                        <Link href={`/companies/${company.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="Edit Details">
+                          <Pencil size={16} />
+                        </Link>
+                        <DeleteButton id={company.id} action={deleteCompany} entityName="company" />
+                      </div>
                     </td>
                   </tr>
                 ))

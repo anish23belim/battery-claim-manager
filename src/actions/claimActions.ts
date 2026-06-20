@@ -55,3 +55,20 @@ export async function addClaim(formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/claims");
 }
+
+
+export async function deleteClaim(id: string) {
+  const claim = await prisma.claim.findUnique({ where: { id }, include: { deliveryItems: true } });
+  if (!claim) return;
+  await prisma.(async (tx) => {
+    if (claim.deliveryItems.length > 0) {
+      await tx.deliveryItem.deleteMany({ where: { claimId: id } });
+    }
+    await tx.dealer.update({
+      where: { id: claim.dealerId },
+      data: { openingPendingBalance: { decrement: 1 } }
+    });
+    await tx.claim.delete({ where: { id } });
+  });
+  revalidatePath('/', 'layout');
+}

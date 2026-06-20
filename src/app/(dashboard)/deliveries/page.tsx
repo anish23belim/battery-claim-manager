@@ -2,6 +2,8 @@ import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { Plus, Search , Eye } from "lucide-react";
+import DeleteButton from "@/components/common/DeleteButton";
+import { deleteDelivery } from "@/actions/deliveryActions";
 import { format } from "date-fns";
 
 
@@ -63,9 +65,12 @@ export default async function DeliveriesPage() {
                     <td>{delivery.dealer.name} ({delivery.dealer.shopName})</td>
                     <td>{delivery.quantity}</td>
                     <td style={{ textAlign: "center" }}>
-                      <Link href={`/deliveries/${delivery.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="View Details">
-                        <Eye size={16} />
-                      </Link>
+                      <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
+                        <Link href={`/deliveries/${delivery.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="View Details">
+                          <Eye size={16} />
+                        </Link>
+                        <DeleteButton id={delivery.id} action={deleteDelivery} entityName="delivery" />
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -2,6 +2,8 @@ import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { Plus, Search , Eye } from "lucide-react";
+import DeleteButton from "@/components/common/DeleteButton";
+import { deleteBatch } from "@/actions/batchActions";
 import { format } from "date-fns";
 
 
@@ -69,9 +71,12 @@ export default async function BatchesPage() {
                       </span>
                     </td>
                     <td style={{ textAlign: "center" }}>
-                      <Link href={`/batches/${batch.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="View Details">
-                        <Eye size={16} />
-                      </Link>
+                      <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
+                        <Link href={`/batches/${batch.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="View Details">
+                          <Eye size={16} />
+                        </Link>
+                        <DeleteButton id={batch.id} action={deleteBatch} entityName="batch" />
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -32,3 +32,13 @@ export async function addDealer(formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/dealers");
 }
+
+
+export async function deleteDealer(id: string) {
+  try {
+    await prisma.dealer.delete({ where: { id } });
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    return { error: 'Cannot delete dealer. They may have existing claims or deliveries.' };
+  }
+}

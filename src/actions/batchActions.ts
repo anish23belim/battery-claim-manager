@@ -47,3 +47,12 @@ export async function createBatch(formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/batches");
 }
+
+
+export async function deleteBatch(id: string) {
+  await prisma.(async (tx) => {
+    await tx.claim.updateMany({ where: { batchId: id }, data: { batchId: null, status: 'Received from Dealer' } });
+    await tx.batch.delete({ where: { id } });
+  });
+  revalidatePath('/', 'layout');
+}

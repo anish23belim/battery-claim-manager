@@ -26,3 +26,13 @@ export async function addCompany(formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/companies");
 }
+
+
+export async function deleteCompany(id: string) {
+  try {
+    await prisma.company.delete({ where: { id } });
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    return { error: 'Cannot delete company. It may have existing claims or batches.' };
+  }
+}
