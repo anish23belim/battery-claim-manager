@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { createSession, deleteSession } from "@/lib/session";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 
 export async function login(prevState: any, formData: FormData) {
@@ -33,7 +34,8 @@ export async function login(prevState: any, formData: FormData) {
         }
       });
       await createSession(newUser.id, newUser.username, newUser.role);
-      redirect("/");
+      revalidatePath("/", "layout");
+  redirect("/");
     }
 
     return { error: "Invalid credentials" };
@@ -47,10 +49,12 @@ export async function login(prevState: any, formData: FormData) {
   }
 
   await createSession(user.id, user.username, user.role);
+  revalidatePath("/", "layout");
   redirect("/");
 }
 
 export async function logout() {
   await deleteSession();
+  revalidatePath("/", "layout");
   redirect("/login");
 }

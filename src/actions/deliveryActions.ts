@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 
 
@@ -56,5 +57,6 @@ export async function createDelivery(formData: FormData) {
     });
   });
 
+  revalidatePath("/", "layout");
   redirect("/deliveries");
 }
