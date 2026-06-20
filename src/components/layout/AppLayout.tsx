@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/actions/auth";
@@ -15,12 +15,39 @@ import {
   Settings,
   Menu,
   Bell,
-  LogOut
+  LogOut,
+  X
 } from "lucide-react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    
+    // Initial check
+    handleResize();
+    
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Close sidebar on navigation in mobile
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  }, [pathname, isMobile]);
 
   const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -35,16 +62,30 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="app-layout">
+      {/* Mobile Overlay */}
+      <div 
+        className={`sidebar-overlay ${sidebarOpen && isMobile ? "active" : ""}`} 
+        onClick={() => setSidebarOpen(false)}
+      ></div>
+
       {/* Sidebar */}
       <aside 
         className="sidebar"
-        style={{ transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)", position: sidebarOpen ? "relative" : "absolute" }}
+        style={{ 
+          transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)", 
+          position: isMobile ? "fixed" : (sidebarOpen ? "relative" : "absolute") 
+        }}
       >
-        <div style={{ padding: "1.5rem", borderBottom: "1px solid var(--sidebar-border)" }}>
+        <div style={{ padding: "1.5rem", borderBottom: "1px solid var(--sidebar-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h1 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "var(--primary)" }}>Battery Claim Mgr</h1>
+          {isMobile && (
+            <button onClick={() => setSidebarOpen(false)} style={{ background: "transparent", border: "none", color: "var(--foreground)", padding: "0.25rem" }}>
+              <X size={20} />
+            </button>
+          )}
         </div>
         
-        <nav style={{ padding: "1rem 0", flex: 1, display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+        <nav style={{ padding: "1rem 0", flex: 1, display: "flex", flexDirection: "column", gap: "0.25rem", overflowY: "auto" }}>
           {navigation.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
@@ -90,7 +131,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <Menu size={24} />
             </button>
-            <h2 style={{ fontSize: "1.125rem", fontWeight: 500, margin: 0 }}>
+            <h2 style={{ fontSize: "1.125rem", fontWeight: 500, margin: 0, display: isMobile ? "none" : "block" }}>
               {navigation.find(n => pathname === n.href || pathname.startsWith(n.href + "/"))?.name || "Dashboard"}
             </h2>
           </div>

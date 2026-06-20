@@ -109,6 +109,7 @@ button {
   display: flex;
   height: 100vh;
   overflow: hidden;
+  position: relative;
 }
 
 .sidebar {
@@ -118,6 +119,16 @@ button {
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease;
+  z-index: 50;
+  height: 100%;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 40;
 }
 
 .main-content {
@@ -125,6 +136,7 @@ button {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  width: 100%;
 }
 
 .top-nav {
@@ -140,7 +152,23 @@ button {
 .page-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+  }
+  .sidebar-overlay.active {
+    display: block;
+  }
+  .page-content {
+    padding: 1rem;
+  }
 }
 
 /* Forms */
