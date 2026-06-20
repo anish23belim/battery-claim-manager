@@ -21,7 +21,7 @@ export default async function ClaimDetailsPage({ params }: { params: Promise<{ i
 
   return (
     <div>
-      <div className="no-print" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+      <div className="no-print claim-header">
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <Link href="/claims" className="btn btn-outline" style={{ padding: "0.5rem" }}>
             <ArrowLeft size={18} />
@@ -41,7 +41,7 @@ export default async function ClaimDetailsPage({ params }: { params: Promise<{ i
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
+        <div className="claim-grid">
           <div>
             <h3 style={{ fontSize: "1rem", fontWeight: "bold", marginBottom: "0.5rem", color: "var(--secondary-foreground)" }}>Dealer Info</h3>
             <p style={{ margin: "0 0 0.25rem 0", fontWeight: 500 }}>{claim.dealer.name}</p>
@@ -67,7 +67,7 @@ export default async function ClaimDetailsPage({ params }: { params: Promise<{ i
           {claim.remarks && <p style={{ margin: "0" }}><strong>Remarks:</strong> {claim.remarks}</p>}
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4rem" }}>
+        <div className="signature-row">
           <div style={{ textAlign: "center", width: "200px" }}>
             <div style={{ borderBottom: "1px solid var(--foreground)", marginBottom: "0.5rem" }}></div>
             <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--secondary-foreground)" }}>Dealer Signature</p>

@@ -12,7 +12,7 @@ export default function ClaimActions({ claim, dealer }: any) {
   const whatsappUrl = `https://wa.me/${dealer.whatsapp || dealer.mobile}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
-    <div style={{ display: "flex", gap: "1rem" }} className="no-print">
+    <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }} className="no-print">
       <a href={whatsappUrl} target="_blank" rel="noreferrer" className="btn" style={{ background: "#25D366", color: "white" }}>
         <MessageCircle size={18} />
         WhatsApp Update

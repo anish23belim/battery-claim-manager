@@ -171,6 +171,43 @@ button {
   }
 }
 
+.claim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.claim-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.signature-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4rem;
+  gap: 2rem;
+}
+
+@media (max-width: 640px) {
+  .claim-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .claim-grid {
+    grid-template-columns: 1fr;
+  }
+  .signature-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+  }
+}
+
 /* Forms */
 .form-group {
   display: flex;
