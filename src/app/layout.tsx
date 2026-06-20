@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "Manage battery replacement claims",
 };
 
-export const dynamic = "force-dynamic";
+
 
 export default function RootLayout({
   children,
