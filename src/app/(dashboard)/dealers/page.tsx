@@ -1,9 +1,9 @@
 import React from "react";
 import Link from "next/link";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { Plus, Search } from "lucide-react";
 
-const prisma = new PrismaClient();
+
 
 export default async function DealersPage() {
   const dealers = await prisma.dealer.findMany({

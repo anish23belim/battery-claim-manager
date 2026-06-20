@@ -1,10 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { Plus, Search } from "lucide-react";
 import { format } from "date-fns";
 
-const prisma = new PrismaClient();
+
 
 export default async function ClaimsPage() {
   const claims = await prisma.claim.findMany({

@@ -1,9 +1,9 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
-const prisma = new PrismaClient();
+
 
 export async function createBatch(formData: FormData) {
   const companyId = formData.get("companyId") as string;

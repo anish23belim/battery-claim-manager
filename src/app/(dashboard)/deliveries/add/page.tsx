@@ -1,10 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import DeliveryForm from "@/components/deliveries/DeliveryForm";
 
-const prisma = new PrismaClient();
+
 
 export default async function AddDeliveryPage() {
   const dealers = await prisma.dealer.findMany({ orderBy: { name: "asc" } });

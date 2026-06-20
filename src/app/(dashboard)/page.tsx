@@ -1,10 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import { Users, FileBox, Truck, BatteryWarning } from "lucide-react";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { format } from "date-fns";
 
-const prisma = new PrismaClient();
+
 
 export default async function Dashboard() {
   const totalClaims = await prisma.claim.count();

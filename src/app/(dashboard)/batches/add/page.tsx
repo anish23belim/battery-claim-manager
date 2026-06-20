@@ -1,10 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import BatchForm from "@/components/batches/BatchForm";
 
-const prisma = new PrismaClient();
+
 
 export default async function AddBatchPage() {
   const companies = await prisma.company.findMany({ orderBy: { name: "asc" } });

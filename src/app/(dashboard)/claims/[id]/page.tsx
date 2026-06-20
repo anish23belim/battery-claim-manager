@@ -1,11 +1,11 @@
 import React from "react";
 import Link from "next/link";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { ArrowLeft } from "lucide-react";
 import ClaimActions from "@/components/claims/ClaimActions";
 import { format } from "date-fns";
 
-const prisma = new PrismaClient();
+
 
 export default async function ClaimDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

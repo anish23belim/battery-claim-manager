@@ -1,10 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { Plus, Search } from "lucide-react";
 import { format } from "date-fns";
 
-const prisma = new PrismaClient();
+
 
 export default async function DeliveriesPage() {
   const deliveries = await prisma.delivery.findMany({

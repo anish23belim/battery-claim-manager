@@ -1,9 +1,9 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
-const prisma = new PrismaClient();
+
 
 export async function addClaim(formData: FormData) {
   const dealerId = formData.get("dealerId") as string;

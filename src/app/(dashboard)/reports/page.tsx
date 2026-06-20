@@ -1,8 +1,8 @@
 import React from "react";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import ReportTable from "@/components/reports/ReportTable";
 
-const prisma = new PrismaClient();
+
 
 export default async function ReportsPage() {
   // 1. Dealer-wise Pending Replacement Report
