@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Eye } from "lucide-react";
 import { format } from "date-fns";
 
 
@@ -59,7 +59,7 @@ export default async function ClaimsPage() {
                 <th>Company/Brand</th>
                 <th>Battery Model</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th style={{ width: "80px", textAlign: "center" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -80,9 +80,9 @@ export default async function ClaimsPage() {
                         {claim.status}
                       </span>
                     </td>
-                    <td>
-                      <Link href={`/claims/${claim.id}`} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}>
-                        View
+                    <td style={{ textAlign: "center" }}>
+                      <Link href={`/claims/${claim.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="View Details">
+                        <Eye size={16} />
                       </Link>
                     </td>
                   </tr>

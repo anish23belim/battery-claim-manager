@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search , Pencil } from "lucide-react";
 
 
 
@@ -40,7 +40,7 @@ export default async function CompaniesPage() {
                 <th>Brand Name</th>
                 <th>Contact Person</th>
                 <th>Mobile</th>
-                <th>Actions</th>
+                <th style={{ width: "80px", textAlign: "center" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -55,9 +55,9 @@ export default async function CompaniesPage() {
                     <td>{company.brandName}</td>
                     <td>{company.contactPerson || "-"}</td>
                     <td>{company.mobile || "-"}</td>
-                    <td>
-                      <Link href={`/companies/${company.id}`} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}>
-                        Edit
+                    <td style={{ textAlign: "center" }}>
+                      <Link href={`/companies/${company.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="Edit Details">
+                        <Pencil size={16} />
                       </Link>
                     </td>
                   </tr>

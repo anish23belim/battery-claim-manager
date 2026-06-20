@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search , Eye } from "lucide-react";
 import { format } from "date-fns";
 
 
@@ -48,7 +48,7 @@ export default async function BatchesPage() {
                 <th>Company/Brand</th>
                 <th>Total Claims</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th style={{ width: "80px", textAlign: "center" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -68,9 +68,9 @@ export default async function BatchesPage() {
                         {batch.status}
                       </span>
                     </td>
-                    <td>
-                      <Link href={`/batches/${batch.id}`} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}>
-                        View
+                    <td style={{ textAlign: "center" }}>
+                      <Link href={`/batches/${batch.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="View Details">
+                        <Eye size={16} />
                       </Link>
                     </td>
                   </tr>
