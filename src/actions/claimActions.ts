@@ -62,29 +62,42 @@ export async function addClaim(formData: FormData) {
 
 
 export async function deleteClaim(id: string) {
-  const claim = await prisma.claim.findUnique({ where: { id }, include: { deliveryItems: true } });
-  if (!claim) return;
-  await prisma.$transaction(async (tx) => {
-    let shouldDecrementBalance = true;
+  try {
+    const claim = await prisma.claim.findUnique({ where: { id }, include: { deliveryItems: true } });
+    if (!claim) return { error: "Claim not found" };
 
-    if (claim.deliveryItems.length > 0) {
-      await tx.deliveryItem.deleteMany({ where: { claimId: id } });
-      shouldDecrementBalance = false;
-    }
-    
-    if (shouldDecrementBalance && claim.dealerId) {
-      const dealer = await tx.dealer.findUnique({ where: { id: claim.dealerId } });
-      if (dealer && dealer.openingPendingBalance > 0) {
-        await tx.dealer.update({
-          where: { id: claim.dealerId },
-          data: { openingPendingBalance: { decrement: 1 } }
-        });
+    await prisma.$transaction(async (tx) => {
+      let shouldDecrementBalance = true;
+
+      // Always try to delete delivery items first to prevent foreign key errors
+      const deletedItems = await tx.deliveryItem.deleteMany({ where: { claimId: id } });
+      
+      if (deletedItems.count > 0 || claim.deliveryItems.length > 0) {
+        shouldDecrementBalance = false;
       }
-    }
+      
+      if (shouldDecrementBalance && claim.dealerId) {
+        const dealer = await tx.dealer.findUnique({ where: { id: claim.dealerId } });
+        if (dealer && dealer.openingPendingBalance > 0) {
+          await tx.dealer.update({
+            where: { id: claim.dealerId },
+            data: { openingPendingBalance: { decrement: 1 } }
+          });
+        }
+      }
 
-    await tx.claim.delete({ where: { id } });
-  });
-  revalidatePath('/', 'layout');
+      await tx.claim.delete({ where: { id } });
+    });
+
+    // Targeted revalidation for better performance
+    revalidatePath('/claims');
+    revalidatePath('/');
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error("Delete Claim Error:", error);
+    return { error: "Failed to delete claim: It may be linked to other records." };
+  }
 }
 
 export async function markDeliveredToCustomer(id: string) {
