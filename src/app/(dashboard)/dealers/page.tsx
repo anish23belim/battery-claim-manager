@@ -68,7 +68,7 @@ export default async function DealersPage() {
                         <Link href={`/dealers/${dealer.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="View Details">
                           <Eye size={16} />
                         </Link>
-                        <DeleteButton id={dealer.id} action={deleteDealer} entityName="dealer" />
+                        <DeleteButton id={dealer.id} action={deleteDealer} entityName="dealer" confirmMessage="WARNING: This will PERMANENTLY delete this dealer AND all of their claims and deliveries. Are you sure?" />
                       </div>
                     </td>
                   </tr>

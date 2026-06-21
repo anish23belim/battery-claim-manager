@@ -30,9 +30,30 @@ export async function addCompany(formData: FormData) {
 
 export async function deleteCompany(id: string) {
   try {
-    await prisma.company.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      const claims = await tx.claim.findMany({ where: { companyId: id } });
+      const claimIds = claims.map(c => c.id);
+
+      const batches = await tx.batch.findMany({ where: { companyId: id } });
+      const batchIds = batches.map(b => b.id);
+
+      if (claimIds.length > 0) {
+        await tx.deliveryItem.deleteMany({
+          where: { claimId: { in: claimIds } }
+        });
+        await tx.claim.deleteMany({ where: { companyId: id } });
+      }
+
+      if (batchIds.length > 0) {
+        await tx.batch.deleteMany({ where: { companyId: id } });
+      }
+
+      await tx.company.delete({ where: { id } });
+    });
+
     revalidatePath('/', 'layout');
   } catch (error) {
-    return { error: 'Cannot delete company. It may have existing claims or batches.' };
+    console.error("Company deletion error:", error);
+    return { error: 'An error occurred while deleting the company.' };
   }
 }

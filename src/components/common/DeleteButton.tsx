@@ -7,13 +7,15 @@ interface DeleteButtonProps {
   id: string;
   action: (id: string) => Promise<{ error?: string; success?: boolean } | void>;
   entityName?: string;
+  confirmMessage?: string;
 }
 
-export default function DeleteButton({ id, action, entityName = "item" }: DeleteButtonProps) {
+export default function DeleteButton({ id, action, entityName = "item", confirmMessage }: DeleteButtonProps) {
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (window.confirm(`Are you sure you want to delete this ${entityName}?`)) {
+    const message = confirmMessage || `Are you sure you want to delete this ${entityName}?`;
+    if (window.confirm(message)) {
       const tr = e.currentTarget.closest("tr");
       if (tr) {
         tr.style.opacity = "0.4";

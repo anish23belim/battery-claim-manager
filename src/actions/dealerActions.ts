@@ -36,9 +36,38 @@ export async function addDealer(formData: FormData) {
 
 export async function deleteDealer(id: string) {
   try {
-    await prisma.dealer.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      const claims = await tx.claim.findMany({ where: { dealerId: id } });
+      const claimIds = claims.map(c => c.id);
+
+      const deliveries = await tx.delivery.findMany({ where: { dealerId: id } });
+      const deliveryIds = deliveries.map(d => d.id);
+
+      if (claimIds.length > 0 || deliveryIds.length > 0) {
+        await tx.deliveryItem.deleteMany({
+          where: {
+            OR: [
+              { claimId: { in: claimIds.length > 0 ? claimIds : ["___DUMMY___"] } },
+              { deliveryId: { in: deliveryIds.length > 0 ? deliveryIds : ["___DUMMY___"] } }
+            ]
+          }
+        });
+      }
+
+      if (deliveryIds.length > 0) {
+        await tx.delivery.deleteMany({ where: { dealerId: id } });
+      }
+
+      if (claimIds.length > 0) {
+        await tx.claim.deleteMany({ where: { dealerId: id } });
+      }
+
+      await tx.dealer.delete({ where: { id } });
+    });
+
     revalidatePath('/', 'layout');
   } catch (error) {
-    return { error: 'Cannot delete dealer. They may have existing claims or deliveries.' };
+    console.error("Dealer deletion error:", error);
+    return { error: 'An error occurred while deleting the dealer.' };
   }
 }

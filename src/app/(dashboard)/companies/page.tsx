@@ -62,7 +62,7 @@ export default async function CompaniesPage() {
                         <Link href={`/companies/${company.id}`} prefetch={true} className="btn btn-outline" style={{ padding: "0.4rem", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "0.375rem" }} title="Edit Details">
                           <Pencil size={16} />
                         </Link>
-                        <DeleteButton id={company.id} action={deleteCompany} entityName="company" />
+                        <DeleteButton id={company.id} action={deleteCompany} entityName="company" confirmMessage="WARNING: This will PERMANENTLY delete this company AND all of their claims and batches. Are you sure?" />
                       </div>
                     </td>
                   </tr>
