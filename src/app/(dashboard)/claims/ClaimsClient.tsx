@@ -6,7 +6,8 @@ import { Plus, Eye } from "lucide-react";
 import DeleteButton from "@/components/common/DeleteButton";
 import SearchBar from "@/components/common/SearchBar";
 import { deleteClaim } from "@/actions/claimActions";
-import { format } from "date-fns";
+import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
+import * as XLSX from "xlsx";
 
 export default function ClaimsClient({ initialData }: { initialData: any[] }) {
   const [q, setQ] = useState("");
@@ -58,14 +59,42 @@ export default function ClaimsClient({ initialData }: { initialData: any[] }) {
     }
   };
 
+  const exportToExcel = () => {
+    const exportData = filteredData.map(claim => ({
+      "Claim No": claim.claimNumber,
+      "Date": format(new Date(claim.date), 'dd MMM yyyy'),
+      "Dealer": claim.dealer ? claim.dealer.name : "Direct Customer",
+      "Company": claim.company.name,
+      "Battery Model": claim.batteryModel,
+      "Old Serial No": claim.oldSerialNumber || "N/A",
+      "Status": claim.status,
+      "Customer Name": claim.customerName || "N/A",
+      "Customer Mobile": claim.customerMobile || "N/A",
+      "Advance Replacement": claim.isDealerAdvance ? "Yes" : "No",
+      "Dealer Settled": claim.isShopSettled ? "Yes" : "No"
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Claims");
+    
+    const fileName = `Claims_Export_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
+
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
         <h1 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Claims</h1>
-        <Link href="/claims/add" className="btn btn-primary">
-          <Plus size={18} />
-          New Claim
-        </Link>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <button onClick={exportToExcel} className="btn btn-outline" style={{ borderColor: "var(--success)", color: "var(--success)" }}>
+            Export to Excel
+          </button>
+          <Link href="/claims/add" className="btn btn-primary">
+            <Plus size={18} />
+            New Claim
+          </Link>
+        </div>
       </div>
 
       <div className="card">
