@@ -14,11 +14,16 @@ export default function SearchBar({ placeholder = "Search..." }: SearchBarProps)
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const [query, setQuery] = useState(searchParams.get("q") || "");
+  const currentQ = searchParams.get("q") || "";
+  const [query, setQuery] = useState(currentQ);
 
   useEffect(() => {
+    // Prevent infinite loop if the query hasn't changed
+    if (query === currentQ) return;
+
     const timer = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
+      // Use window.location.search to get latest params without depending on searchParams object
+      const params = new URLSearchParams(window.location.search);
       if (query) {
         params.set("q", query);
       } else {
@@ -27,10 +32,10 @@ export default function SearchBar({ placeholder = "Search..." }: SearchBarProps)
       startTransition(() => {
         router.push(`${pathname}?${params.toString()}`);
       });
-    }, 300); // 300ms debounce
+    }, 400); // 400ms debounce
 
     return () => clearTimeout(timer);
-  }, [query, router, pathname, searchParams]);
+  }, [query, pathname, router, currentQ]);
 
   return (
     <div className="form-control" style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "100%", maxWidth: "300px", opacity: isPending ? 0.7 : 1 }}>
