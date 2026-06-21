@@ -1,10 +1,36 @@
 "use client";
 
 import React, { useState } from "react";
-import { addClaim } from "@/actions/claimActions";
+import { addClaim, checkDuplicateSerialNumber } from "@/actions/claimActions";
+import { format } from "date-fns";
 
 export default function ClaimFormClient({ dealers, companies }: { dealers: any[], companies: any[] }) {
   const [isDirectCustomer, setIsDirectCustomer] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
+
+  const handleSerialNumberBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const serial = e.target.value;
+    if (!serial || serial.trim() === "") {
+      setDuplicateWarning(null);
+      return;
+    }
+
+    setIsChecking(true);
+    try {
+      const duplicate = await checkDuplicateSerialNumber(serial);
+      if (duplicate) {
+        const dateStr = duplicate.date ? format(new Date(duplicate.date), "dd MMM yyyy") : "Unknown Date";
+        setDuplicateWarning(`⚠️ Warning: This serial number was already claimed on ${dateStr} in Claim #${duplicate.claimNumber}`);
+      } else {
+        setDuplicateWarning(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsChecking(false);
+    }
+  };
 
   return (
     <form action={addClaim} className="form-grid">
@@ -60,7 +86,22 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
 
       <div className="form-group">
         <label htmlFor="oldSerialNumber">Old Serial Number *</label>
-        <input type="text" id="oldSerialNumber" name="oldSerialNumber" className="form-control" required />
+        <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
+          <input 
+            type="text" 
+            id="oldSerialNumber" 
+            name="oldSerialNumber" 
+            className="form-control" 
+            required 
+            onBlur={handleSerialNumberBlur}
+          />
+          {isChecking && <span style={{ position: "absolute", right: "10px", fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>Checking...</span>}
+        </div>
+        {duplicateWarning && (
+          <div style={{ marginTop: "0.5rem", padding: "0.75rem", background: "var(--danger-bg)", color: "var(--danger-text)", borderRadius: "var(--radius)", fontSize: "0.875rem", fontWeight: 500 }}>
+            {duplicateWarning}
+          </div>
+        )}
       </div>
 
       <div className="form-group">

@@ -109,3 +109,21 @@ export async function markDeliveredToCustomer(id: string) {
   revalidatePath("/");
   revalidatePath("/claims");
 }
+
+export async function checkDuplicateSerialNumber(serialNumber: string) {
+  if (!serialNumber || serialNumber.trim() === "") return null;
+  
+  const existingClaim = await prisma.claim.findFirst({
+    where: { oldSerialNumber: serialNumber.trim() },
+    select: { claimNumber: true, date: true }
+  });
+
+  if (existingClaim) {
+    return {
+      claimNumber: existingClaim.claimNumber,
+      date: existingClaim.date
+    };
+  }
+
+  return null;
+}
