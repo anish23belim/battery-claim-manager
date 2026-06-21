@@ -127,3 +127,35 @@ export async function checkDuplicateSerialNumber(serialNumber: string) {
 
   return null;
 }
+
+export async function markAdvanceReplacement(id: string) {
+  await prisma.$transaction(async (tx) => {
+    const claim = await tx.claim.findUnique({ where: { id } });
+    if (!claim || claim.isAdvanceReplacement) return;
+    
+    if (claim.dealerId) {
+      await tx.dealer.update({
+        where: { id: claim.dealerId },
+        data: { openingPendingBalance: { decrement: 1 } }
+      });
+    }
+
+    await tx.claim.update({
+      where: { id },
+      data: { isAdvanceReplacement: true }
+    });
+  });
+
+  revalidatePath("/");
+  revalidatePath("/claims");
+}
+
+export async function closeAdvanceClaim(id: string) {
+  await prisma.claim.update({
+    where: { id },
+    data: { status: "Closed (Moved to Shop Stock)" }
+  });
+  
+  revalidatePath("/");
+  revalidatePath("/claims");
+}

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Printer, MessageCircle, CheckCircle } from "lucide-react";
-import { markDeliveredToCustomer } from "@/actions/claimActions";
+import { markDeliveredToCustomer, markAdvanceReplacement, closeAdvanceClaim } from "@/actions/claimActions";
 
 export default function ClaimActions({ claim, dealer }: any) {
   const handlePrint = () => {
@@ -31,6 +31,24 @@ export default function ClaimActions({ claim, dealer }: any) {
           <button type="submit" className="btn btn-primary">
             <CheckCircle size={18} />
             Mark Delivered to Customer
+          </button>
+        </form>
+      )}
+
+      {dealer && !claim.isAdvanceReplacement && !claim.status.includes("Received from Company") && claim.status !== "Closed" && claim.status !== "Delivered to Dealer" && (
+        <form action={() => markAdvanceReplacement(claim.id)} style={{ display: "inline-block" }}>
+          <button type="submit" className="btn btn-outline" style={{ borderColor: "var(--warning)", color: "var(--warning)" }}>
+            <CheckCircle size={18} />
+            Give Advance Replacement to Dealer
+          </button>
+        </form>
+      )}
+
+      {dealer && claim.isAdvanceReplacement && claim.status === "Replacement Received from Company" && (
+        <form action={() => closeAdvanceClaim(claim.id)} style={{ display: "inline-block" }}>
+          <button type="submit" className="btn btn-primary" style={{ background: "var(--success)" }}>
+            <CheckCircle size={18} />
+            Close Claim & Move to Shop Stock
           </button>
         </form>
       )}
