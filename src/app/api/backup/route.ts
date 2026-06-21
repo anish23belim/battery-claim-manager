@@ -98,8 +98,9 @@ export async function GET() {
     const wsBatches = xlsx.utils.json_to_sheet(formattedBatches);
     xlsx.utils.book_append_sheet(wb, wsBatches, 'Batches');
 
-    // 4. Generate Buffer
-    const buf = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    // 4. Generate Buffer via Base64 to ensure binary integrity
+    const base64Str = xlsx.write(wb, { type: 'base64', bookType: 'xlsx' });
+    const buf = Buffer.from(base64Str, 'base64');
 
     // 5. Return Response
     const dateStr = new Date().toISOString().split('T')[0];
