@@ -36,7 +36,7 @@ export default async function ClaimDetailsPage({ params }: { params: Promise<{ i
         <div style={{ textAlign: "center", marginBottom: "2rem", borderBottom: "2px solid var(--card-border)", paddingBottom: "1rem" }}>
           <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", margin: 0 }}>Battery Replacement Claim Slip</h2>
           <p style={{ margin: "0.5rem 0 0 0", color: "var(--secondary-foreground)" }}>
-            Claim No: <strong style={{ color: "var(--foreground)" }}>{claim.claimNumber}</strong> | 
+            Claim No: <strong style={{ color: "var(--foreground)" }}>{claim.claimNumber}</strong> <span style={{ fontSize: '0.9rem', color: 'var(--secondary-foreground)', marginLeft: '10px' }}>(SN: {claim.oldSerialNumber || "N/A"})</span> | 
             Date: <strong>{format(new Date(claim.date), 'dd MMM yyyy')}</strong>
           </p>
         </div>

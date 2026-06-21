@@ -13,6 +13,7 @@ type Claim = {
   batteryModel: string;
   status: string;
   dealer: { name: string };
+  oldSerialNumber?: string | null;
 };
 
 type Company = {
@@ -127,7 +128,10 @@ export default function BatchForm({ companies, claims }: { companies: Company[],
                       onChange={() => toggleClaim(claim.id)}
                     />
                   </td>
-                  <td style={{ fontWeight: 500 }}>{claim.claimNumber}</td>
+                  <td>
+                    <div style={{ fontWeight: 500 }}>{claim.claimNumber}</div>
+                    <div style={{ fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>SN: {claim.oldSerialNumber || "N/A"}</div>
+                  </td>
                   <td>{format(new Date(claim.date), 'dd MMM yyyy')}</td>
                   <td>{claim.dealer.name}</td>
                   <td>{claim.batteryModel}</td>

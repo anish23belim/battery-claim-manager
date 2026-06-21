@@ -149,7 +149,10 @@ export default async function Dashboard() {
               ) : (
                 recentClaims.map((claim) => (
                   <tr key={claim.id}>
-                    <td style={{ fontWeight: 500 }}>{claim.claimNumber}</td>
+                    <td>
+                      <div style={{ fontWeight: 500 }}>{claim.claimNumber}</div>
+                      <div style={{ fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>SN: {claim.oldSerialNumber || "N/A"}</div>
+                    </td>
                     <td>{format(new Date(claim.date), 'dd MMM yyyy')}</td>
                     <td>{claim.dealer.name}</td>
                     <td>

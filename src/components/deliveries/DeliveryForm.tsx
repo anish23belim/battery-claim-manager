@@ -13,6 +13,7 @@ type Claim = {
   batteryModel: string;
   status: string;
   company: { name: string };
+  oldSerialNumber?: string | null;
 };
 
 type Dealer = {
@@ -117,7 +118,10 @@ export default function DeliveryForm({ dealers, claims }: { dealers: Dealer[], c
                       onChange={() => toggleClaim(claim.id)}
                     />
                   </td>
-                  <td style={{ fontWeight: 500 }}>{claim.claimNumber}</td>
+                  <td>
+                    <div style={{ fontWeight: 500 }}>{claim.claimNumber}</div>
+                    <div style={{ fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>SN: {claim.oldSerialNumber || "N/A"}</div>
+                  </td>
                   <td>{claim.company.name}</td>
                   <td>{claim.batteryModel}</td>
                   <td>{claim.status}</td>

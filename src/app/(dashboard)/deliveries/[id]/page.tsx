@@ -68,7 +68,10 @@ export default async function DeliveryDetailsPage({ params }: { params: Promise<
             <tbody>
               {delivery.items.map((item) => (
                 <tr key={item.id}>
-                  <td style={{ padding: "0.5rem 0" }}>{item.claim.claimNumber}</td>
+                  <td style={{ padding: "0.5rem 0" }}>
+                    <div style={{ fontWeight: 500 }}>{item.claim.claimNumber}</div>
+                    <div style={{ fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>SN: {item.claim.oldSerialNumber || "N/A"}</div>
+                  </td>
                   <td style={{ padding: "0.5rem 0" }}>{item.claim.company.name} - {item.claim.batteryModel}</td>
                   <td style={{ padding: "0.5rem 0" }}>{item.claim.oldSerialNumber}</td>
                   <td style={{ padding: "0.5rem 0" }}>{item.newSerialNumber || "-"}</td>

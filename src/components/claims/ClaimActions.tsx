@@ -8,7 +8,7 @@ export default function ClaimActions({ claim, dealer }: any) {
     window.print();
   };
 
-  const whatsappMessage = `Dear ${dealer.name}, your battery replacement claim no. ${claim.claimNumber} is currently ${claim.status}.`;
+  const whatsappMessage = `Dear ${dealer.name}, your battery replacement claim no. ${claim.claimNumber} (SN: ${claim.oldSerialNumber || "N/A"}) is currently ${claim.status}.`;
   const whatsappUrl = `https://wa.me/${dealer.whatsapp || dealer.mobile}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
