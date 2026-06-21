@@ -18,6 +18,8 @@ export async function addClaim(formData: FormData) {
   const saleDateStr = formData.get("saleDate") as string;
   const problem = formData.get("problem") as string;
   const remarks = formData.get("remarks") as string;
+  const isDealerAdvance = formData.get("isDealerAdvance") === "true";
+  const dealerReplacementSerialNumber = formData.get("dealerReplacementSerialNumber") as string;
   
   const saleDate = saleDateStr ? new Date(saleDateStr) : null;
 
@@ -43,6 +45,8 @@ export async function addClaim(formData: FormData) {
         saleDate,
         problem,
         remarks,
+        isDealerAdvance,
+        dealerReplacementSerialNumber: isDealerAdvance ? dealerReplacementSerialNumber : null,
         status: parsedDealerId ? "Received from Dealer" : "Received from Customer"
       }
     });
@@ -126,4 +130,39 @@ export async function checkDuplicateSerialNumber(serialNumber: string) {
   }
 
   return null;
+}
+
+export async function settleDealerAdvance(id: string, shopReplacementSerialNumber: string) {
+  await prisma.$transaction(async (tx) => {
+    const claim = await tx.claim.findUnique({ where: { id } });
+    if (!claim || !claim.isDealerAdvance || claim.isShopSettled) return;
+    
+    if (claim.dealerId) {
+      await tx.dealer.update({
+        where: { id: claim.dealerId },
+        data: { openingPendingBalance: { decrement: 1 } }
+      });
+    }
+
+    await tx.claim.update({
+      where: { id },
+      data: { 
+        isShopSettled: true,
+        shopReplacementSerialNumber 
+      }
+    });
+  });
+
+  revalidatePath("/");
+  revalidatePath("/claims");
+}
+
+export async function closeShopSettledClaim(id: string) {
+  await prisma.claim.update({
+    where: { id },
+    data: { status: "Closed (Moved to Shop Stock)" }
+  });
+  
+  revalidatePath("/");
+  revalidatePath("/claims");
 }

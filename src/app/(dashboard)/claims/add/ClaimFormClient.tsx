@@ -6,6 +6,7 @@ import { format } from "date-fns";
 
 export default function ClaimFormClient({ dealers, companies }: { dealers: any[], companies: any[] }) {
   const [isDirectCustomer, setIsDirectCustomer] = useState(false);
+  const [isDealerAdvance, setIsDealerAdvance] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(false);
 
@@ -48,15 +49,31 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
       </div>
 
       {!isDirectCustomer && (
-        <div className="form-group col-span-2">
-          <label htmlFor="dealerId">Dealer *</label>
-          <select id="dealerId" name="dealerId" className="form-control" required={!isDirectCustomer}>
-            <option value="">Select Dealer</option>
-            {dealers.map(d => (
-              <option key={d.id} value={d.id}>{d.name} ({d.shopName})</option>
-            ))}
-          </select>
-        </div>
+        <>
+          <div className="form-group col-span-2">
+            <label htmlFor="dealerId">Dealer *</label>
+            <select id="dealerId" name="dealerId" className="form-control" required={!isDirectCustomer}>
+              <option value="">Select Dealer</option>
+              {dealers.map(d => (
+                <option key={d.id} value={d.id}>{d.name} ({d.shopName})</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="form-group col-span-2" style={{ marginTop: "0.5rem" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontWeight: 500 }}>
+              <input 
+                type="checkbox" 
+                name="isDealerAdvance"
+                value="true"
+                checked={isDealerAdvance} 
+                onChange={(e) => setIsDealerAdvance(e.target.checked)} 
+                style={{ width: "auto" }}
+              />
+              Dealer has given replacement to customer (Advance Replacement)
+            </label>
+          </div>
+        </>
       )}
 
       <div className={`form-group ${isDirectCustomer ? "col-span-2" : ""}`}>
@@ -103,6 +120,20 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
           </div>
         )}
       </div>
+
+      {isDealerAdvance && (
+        <div className="form-group">
+          <label htmlFor="dealerReplacementSerialNumber">Dealer's New Serial Number *</label>
+          <input 
+            type="text" 
+            id="dealerReplacementSerialNumber" 
+            name="dealerReplacementSerialNumber" 
+            className="form-control" 
+            required={isDealerAdvance}
+            placeholder="Serial No. given to customer"
+          />
+        </div>
+      )}
 
       <div className="form-group">
         <label htmlFor="batteryType">Battery Type *</label>

@@ -34,7 +34,15 @@ export default async function ClaimDetailsPage({ params }: { params: Promise<{ i
       <div className="card" style={{ maxWidth: "800px", margin: "0 auto" }}>
         {/* Printable Slip Header */}
         <div style={{ textAlign: "center", marginBottom: "2rem", borderBottom: "2px solid var(--card-border)", paddingBottom: "1rem" }}>
-          <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", margin: 0 }}>Battery Replacement Claim Slip</h2>
+          <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", margin: 0 }}>
+            Battery Replacement Claim Slip
+            {claim.isDealerAdvance && !claim.isShopSettled && (
+              <span className="badge badge-warning" style={{ fontSize: "0.8rem", marginLeft: "1rem", verticalAlign: "middle" }}>Dealer Advance (Pending)</span>
+            )}
+            {claim.isDealerAdvance && claim.isShopSettled && (
+              <span className="badge badge-success" style={{ fontSize: "0.8rem", marginLeft: "1rem", verticalAlign: "middle" }}>Dealer Settled</span>
+            )}
+          </h2>
           <p style={{ margin: "0.5rem 0 0 0", color: "var(--secondary-foreground)" }}>
             Claim No: <strong style={{ color: "var(--foreground)" }}>{claim.claimNumber}</strong> <span style={{ fontSize: '0.9rem', color: 'var(--secondary-foreground)', marginLeft: '10px' }}>(SN: {claim.oldSerialNumber || "N/A"})</span> | 
             Date: <strong>{format(new Date(claim.date), 'dd MMM yyyy')}</strong>
@@ -56,7 +64,17 @@ export default async function ClaimDetailsPage({ params }: { params: Promise<{ i
             <p style={{ margin: "0 0 0.25rem 0" }}><strong>Brand:</strong> {claim.company.name} - {claim.company.brandName}</p>
             <p style={{ margin: "0 0 0.25rem 0" }}><strong>Model:</strong> {claim.batteryModel}</p>
             <p style={{ margin: "0 0 0.25rem 0" }}><strong>Type:</strong> {claim.batteryType}</p>
-            <p style={{ margin: "0" }}><strong>Serial No:</strong> {claim.oldSerialNumber}</p>
+            <p style={{ margin: "0 0 0.25rem 0" }}><strong>Defective Serial No:</strong> {claim.oldSerialNumber}</p>
+            {claim.isDealerAdvance && (
+              <p style={{ margin: "0 0 0.25rem 0", color: "var(--warning)" }}>
+                <strong>Dealer's Given Serial No:</strong> {claim.dealerReplacementSerialNumber}
+              </p>
+            )}
+            {claim.isShopSettled && claim.shopReplacementSerialNumber && (
+              <p style={{ margin: "0 0 0.25rem 0", color: "var(--success)" }}>
+                <strong>Shop's Given Serial No:</strong> {claim.shopReplacementSerialNumber}
+              </p>
+            )}
           </div>
         </div>
 

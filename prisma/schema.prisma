@@ -61,6 +61,10 @@ model Claim {
   status          String         @default("Received from Dealer") 
   remarks         String?
   photoUrl        String?
+  isDealerAdvance Boolean        @default(false)
+  isShopSettled   Boolean        @default(false)
+  dealerReplacementSerialNumber String?
+  shopReplacementSerialNumber   String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   batchId         String?
