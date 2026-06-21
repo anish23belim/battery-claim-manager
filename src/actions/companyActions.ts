@@ -23,7 +23,8 @@ export async function addCompany(formData: FormData) {
     }
   });
 
-  revalidatePath("/", "layout");
+  revalidatePath("/");
+  revalidatePath("/companies");
   redirect("/companies");
 }
 
@@ -51,7 +52,8 @@ export async function deleteCompany(id: string) {
       await tx.company.delete({ where: { id } });
     });
 
-    revalidatePath('/', 'layout');
+    revalidatePath("/");
+    revalidatePath("/companies");
   } catch (error) {
     console.error("Company deletion error:", error);
     return { error: 'An error occurred while deleting the company.' };

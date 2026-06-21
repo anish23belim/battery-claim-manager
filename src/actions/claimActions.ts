@@ -56,7 +56,8 @@ export async function addClaim(formData: FormData) {
     }
   });
 
-  revalidatePath("/", "layout");
+  revalidatePath("/");
+  revalidatePath("/claims");
   redirect("/claims");
 }
 
@@ -105,5 +106,6 @@ export async function markDeliveredToCustomer(id: string) {
     where: { id },
     data: { status: "Delivered to Customer" }
   });
-  revalidatePath('/', 'layout');
+  revalidatePath("/");
+  revalidatePath("/claims");
 }

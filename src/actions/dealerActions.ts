@@ -29,7 +29,8 @@ export async function addDealer(formData: FormData) {
     }
   });
 
-  revalidatePath("/", "layout");
+  revalidatePath("/");
+  revalidatePath("/dealers");
   redirect("/dealers");
 }
 
@@ -65,7 +66,8 @@ export async function deleteDealer(id: string) {
       await tx.dealer.delete({ where: { id } });
     });
 
-    revalidatePath('/', 'layout');
+    revalidatePath("/");
+    revalidatePath("/dealers");
   } catch (error) {
     console.error("Dealer deletion error:", error);
     return { error: 'An error occurred while deleting the dealer.' };

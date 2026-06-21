@@ -57,7 +57,8 @@ export async function createDelivery(formData: FormData) {
     });
   });
 
-  revalidatePath("/", "layout");
+  revalidatePath("/");
+  revalidatePath("/deliveries");
   redirect("/deliveries");
 }
 
@@ -79,5 +80,6 @@ export async function deleteDelivery(id: string) {
     await tx.deliveryItem.deleteMany({ where: { deliveryId: id } });
     await tx.delivery.delete({ where: { id } });
   });
-  revalidatePath('/', 'layout');
+  revalidatePath("/");
+  revalidatePath("/deliveries");
 }
