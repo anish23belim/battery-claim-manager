@@ -138,12 +138,7 @@ export default function ClaimsClient({ initialData }: { initialData: any[] }) {
                     <td>{claim.company.name}</td>
                     <td>{claim.batteryModel}</td>
                     <td>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", alignItems: "flex-start" }}>
-                        <span className={`badge ${getStatusBadgeClass(claim.status)}`}>{claim.status}</span>
-                        {claim.isAdvanceReplacement && (
-                          <span className="badge badge-warning" style={{ fontSize: "0.7rem", padding: "0.1rem 0.4rem" }}>Advance Replaced</span>
-                        )}
-                      </div>
+                      <span className={`badge ${getStatusBadgeClass(claim.status)}`}>{claim.status}</span>
                     </td>
                     <td style={{ textAlign: "center" }}>
                       <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
