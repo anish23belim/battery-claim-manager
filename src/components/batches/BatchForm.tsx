@@ -48,7 +48,7 @@ export default function BatchForm({ companies, claims }: { companies: Company[],
 
   return (
     <form action={createBatch} className="card" style={{ maxWidth: "1000px" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
+      <div className="form-grid" style={{ marginBottom: "2rem" }}>
         
         <div className="form-group">
           <label htmlFor="companyId">Select Company / Brand *</label>
@@ -80,7 +80,7 @@ export default function BatchForm({ companies, claims }: { companies: Company[],
           </select>
         </div>
 
-        <div className="form-group" style={{ gridColumn: "span 2" }}>
+        <div className="form-group col-span-2">
           <label htmlFor="remarks">Batch Remarks</label>
           <textarea id="remarks" name="remarks" className="form-control" rows={2}></textarea>
         </div>

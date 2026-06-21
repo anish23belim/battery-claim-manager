@@ -48,7 +48,7 @@ export default function DeliveryForm({ dealers, claims }: { dealers: Dealer[], c
 
   return (
     <form action={createDelivery} className="card" style={{ maxWidth: "1000px" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
+      <div className="form-grid" style={{ marginBottom: "2rem" }}>
         
         <div className="form-group">
           <label htmlFor="dealerId">Select Dealer *</label>

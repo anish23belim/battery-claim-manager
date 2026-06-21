@@ -7,9 +7,9 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
   const [isDirectCustomer, setIsDirectCustomer] = useState(false);
 
   return (
-    <form action={addClaim} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+    <form action={addClaim} className="form-grid">
       
-      <div className="form-group" style={{ gridColumn: "span 2", marginBottom: "-1rem" }}>
+      <div className="form-group col-span-2" style={{ marginBottom: "-1rem" }}>
         <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontWeight: 500 }}>
           <input 
             type="checkbox" 
@@ -22,7 +22,7 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
       </div>
 
       {!isDirectCustomer && (
-        <div className="form-group" style={{ gridColumn: "span 2" }}>
+        <div className="form-group col-span-2">
           <label htmlFor="dealerId">Dealer *</label>
           <select id="dealerId" name="dealerId" className="form-control" required={!isDirectCustomer}>
             <option value="">Select Dealer</option>
@@ -33,7 +33,7 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
         </div>
       )}
 
-      <div className="form-group" style={{ gridColumn: isDirectCustomer ? "span 2" : "span 1" }}>
+      <div className={`form-group ${isDirectCustomer ? "col-span-2" : ""}`}>
         <label htmlFor="companyId">Battery Company / Brand *</label>
         <select id="companyId" name="companyId" className="form-control" required>
           <option value="">Select Company</option>
@@ -84,17 +84,17 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
         <input type="date" id="saleDate" name="saleDate" className="form-control" />
       </div>
 
-      <div className="form-group" style={{ gridColumn: "span 2" }}>
+      <div className="form-group col-span-2">
         <label htmlFor="problem">Reported Problem *</label>
         <input type="text" id="problem" name="problem" className="form-control" required placeholder="e.g. Dead Cell, Backup Issue" />
       </div>
 
-      <div className="form-group" style={{ gridColumn: "span 2" }}>
+      <div className="form-group col-span-2">
         <label htmlFor="remarks">Internal Remarks</label>
         <textarea id="remarks" name="remarks" className="form-control" rows={3}></textarea>
       </div>
 
-      <div style={{ gridColumn: "span 2", display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
+      <div className="col-span-2" style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
         <button type="reset" className="btn btn-outline">Reset</button>
         <button type="submit" className="btn btn-primary">Submit Claim</button>
       </div>

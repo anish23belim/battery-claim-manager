@@ -14,14 +14,14 @@ export default function AddDealerPage() {
       </div>
 
       <div className="card" style={{ maxWidth: "800px" }}>
-        <form action={addDealer} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+        <form action={addDealer} className="form-grid">
           
-          <div className="form-group" style={{ gridColumn: "span 2" }}>
+          <div className="form-group col-span-2">
             <label htmlFor="name">Dealer Contact Name *</label>
             <input type="text" id="name" name="name" className="form-control" required />
           </div>
 
-          <div className="form-group" style={{ gridColumn: "span 2" }}>
+          <div className="form-group col-span-2">
             <label htmlFor="shopName">Shop / Business Name *</label>
             <input type="text" id="shopName" name="shopName" className="form-control" required />
           </div>
@@ -36,7 +36,7 @@ export default function AddDealerPage() {
             <input type="tel" id="whatsapp" name="whatsapp" className="form-control" />
           </div>
 
-          <div className="form-group" style={{ gridColumn: "span 2" }}>
+          <div className="form-group col-span-2">
             <label htmlFor="address">Address *</label>
             <input type="text" id="address" name="address" className="form-control" required />
           </div>
@@ -56,7 +56,7 @@ export default function AddDealerPage() {
             <input type="number" id="openingPendingBalance" name="openingPendingBalance" className="form-control" defaultValue="0" min="0" />
           </div>
 
-          <div style={{ gridColumn: "span 2", display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1rem" }}>
+          <div className="col-span-2" style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1rem" }}>
             <Link href="/dealers" className="btn btn-outline">Cancel</Link>
             <button type="submit" className="btn btn-primary">Save Dealer</button>
           </div>
