@@ -10,8 +10,29 @@ import { format } from "date-fns";
 
 export default function ClaimsClient({ initialData }: { initialData: any[] }) {
   const [q, setQ] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const filteredData = initialData.filter((claim) => {
+    // Check Date Range first
+    if (startDate || endDate) {
+      const claimDate = new Date(claim.date);
+      // Strip time from claimDate for accurate day-level comparison
+      claimDate.setHours(0, 0, 0, 0);
+
+      if (startDate) {
+        const sDate = new Date(startDate);
+        sDate.setHours(0, 0, 0, 0);
+        if (claimDate < sDate) return false;
+      }
+      if (endDate) {
+        const eDate = new Date(endDate);
+        eDate.setHours(0, 0, 0, 0);
+        if (claimDate > eDate) return false;
+      }
+    }
+
+    // Then check search query
     if (!q) return true;
     const lowerQ = q.toLowerCase();
     return (
@@ -48,12 +69,41 @@ export default function ClaimsClient({ initialData }: { initialData: any[] }) {
       </div>
 
       <div className="card">
-        <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-          <SearchBar 
-            placeholder="Search claims, name, serial, number..." 
-            value={q} 
-            onChange={setQ} 
-          />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
+          <div style={{ flex: "1 1 300px" }}>
+            <SearchBar 
+              placeholder="Search claims, name, serial, number..." 
+              value={q} 
+              onChange={setQ} 
+            />
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+            <input 
+              type="date" 
+              className="form-control" 
+              value={startDate} 
+              onChange={(e) => setStartDate(e.target.value)}
+              title="Start Date"
+            />
+            <span style={{ color: "var(--secondary-foreground)", fontWeight: 500 }}>to</span>
+            <input 
+              type="date" 
+              className="form-control" 
+              value={endDate} 
+              onChange={(e) => setEndDate(e.target.value)}
+              title="End Date"
+            />
+            {(startDate || endDate) && (
+              <button 
+                onClick={() => { setStartDate(""); setEndDate(""); }} 
+                className="btn btn-outline"
+                style={{ padding: "0.5rem", borderRadius: "var(--radius)" }}
+                title="Clear Dates"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="table-container">

@@ -1,4 +1,5 @@
 import React from "react";
+import ChangePasswordForm from "@/components/auth/ChangePasswordForm";
 
 export default function SettingsPage() {
   return (
@@ -43,6 +44,12 @@ export default function SettingsPage() {
           </svg>
           Download Database Backup (Excel)
         </a>
+      </div>
+
+      <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1.5rem", marginTop: "1.5rem" }}>
+        <h3 style={{ fontSize: "1.125rem", fontWeight: "bold", marginBottom: "1rem" }}>Security</h3>
+        <p style={{ color: "var(--secondary-foreground)", marginBottom: "1.5rem" }}>Update your password to keep your account secure.</p>
+        <ChangePasswordForm />
       </div>
     </div>
   );
