@@ -60,7 +60,7 @@ export async function GET() {
       'Company Name': c.name,
       'Brand Name': c.brandName,
       'Contact Person': c.contactPerson || 'N/A',
-      'Contact Mobile': c.contactMobile || 'N/A'
+      'Contact Mobile': c.mobile || 'N/A'
     }));
 
     const formattedDeliveries = deliveries.map(d => ({
@@ -77,8 +77,7 @@ export async function GET() {
       'Company': b.company.name,
       'Total Claims': b.claims.length,
       'Status': b.status,
-      'Courier Info': b.courierInfo || 'N/A',
-      'Tracking No': b.trackingNo || 'N/A'
+      'Remarks': b.remarks || 'N/A'
     }));
 
     // 3. Create Workbook and Sheets
