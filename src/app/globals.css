@@ -72,6 +72,22 @@ button {
   padding: 1.5rem;
 }
 
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  height: 100%;
+}
+
+@media (max-width: 640px) {
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
 .badge {
   display: inline-flex;
   align-items: center;

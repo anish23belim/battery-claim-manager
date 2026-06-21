@@ -83,7 +83,7 @@ export default async function Dashboard() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.5rem", marginBottom: "2rem" }}>
         
         <Link href="/claims" style={{ textDecoration: "none", color: "inherit" }}>
-          <div className="card" style={{ display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", height: "100%" }}>
+          <div className="card stat-card">
             <div style={{ padding: "1rem", background: "var(--warning-bg)", color: "var(--warning-text)", borderRadius: "var(--radius)" }}>
               <BatteryWarning size={24} />
             </div>
@@ -95,7 +95,10 @@ export default async function Dashboard() {
         </Link>
 
         <Link href="/claims" style={{ textDecoration: "none", color: "inherit" }}>
-          <div className="card" style={{ display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", height: "100%" }}>
+          <div className="card stat-card">
+            <div style={{ padding: "1rem", background: "var(--warning-bg)", color: "var(--warning-text)", borderRadius: "var(--radius)" }}>
+              <FileBox size={24} />
+            </div>
             <div>
               <p style={{ margin: 0, color: "var(--secondary-foreground)", fontSize: "0.875rem", fontWeight: 500 }}>Pending at Company</p>
               <h3 style={{ margin: 0, fontSize: "1.5rem", fontWeight: "bold" }}>{pendingAtCompany}</h3>
@@ -104,7 +107,7 @@ export default async function Dashboard() {
         </Link>
 
         <Link href="/claims" style={{ textDecoration: "none", color: "inherit" }}>
-          <div className="card" style={{ display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", height: "100%" }}>
+          <div className="card stat-card">
             <div style={{ padding: "1rem", background: "var(--success-bg)", color: "var(--success-text)", borderRadius: "var(--radius)" }}>
               <Truck size={24} />
             </div>
@@ -116,7 +119,7 @@ export default async function Dashboard() {
         </Link>
 
         <Link href="/claims" style={{ textDecoration: "none", color: "inherit" }}>
-          <div className="card" style={{ display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer", height: "100%" }}>
+          <div className="card stat-card">
             <div style={{ padding: "1rem", background: "var(--danger-bg)", color: "var(--danger-text)", borderRadius: "var(--radius)" }}>
               <Users size={24} />
             </div>
