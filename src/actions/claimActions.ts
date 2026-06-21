@@ -61,13 +61,23 @@ export async function deleteClaim(id: string) {
   const claim = await prisma.claim.findUnique({ where: { id }, include: { deliveryItems: true } });
   if (!claim) return;
   await prisma.$transaction(async (tx) => {
+    let shouldDecrementBalance = true;
+
     if (claim.deliveryItems.length > 0) {
       await tx.deliveryItem.deleteMany({ where: { claimId: id } });
+      shouldDecrementBalance = false;
     }
-    await tx.dealer.update({
-      where: { id: claim.dealerId },
-      data: { openingPendingBalance: { decrement: 1 } }
-    });
+    
+    if (shouldDecrementBalance) {
+      const dealer = await tx.dealer.findUnique({ where: { id: claim.dealerId } });
+      if (dealer && dealer.openingPendingBalance > 0) {
+        await tx.dealer.update({
+          where: { id: claim.dealerId },
+          data: { openingPendingBalance: { decrement: 1 } }
+        });
+      }
+    }
+
     await tx.claim.delete({ where: { id } });
   });
   revalidatePath('/', 'layout');
