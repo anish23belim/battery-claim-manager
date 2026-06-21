@@ -46,8 +46,8 @@ model Claim {
   id              String         @id @default(cuid())
   claimNumber     String         @unique
   date            DateTime       @default(now())
-  dealerId        String
-  dealer          Dealer         @relation(fields: [dealerId], references: [id])
+  dealerId        String?
+  dealer          Dealer?        @relation(fields: [dealerId], references: [id])
   customerName    String?
   customerMobile  String?
   companyId       String

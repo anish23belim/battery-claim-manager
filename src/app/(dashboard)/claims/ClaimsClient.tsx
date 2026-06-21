@@ -82,7 +82,9 @@ export default function ClaimsClient({ initialData }: { initialData: any[] }) {
                       <div style={{ fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>SN: {claim.oldSerialNumber || "N/A"}</div>
                     </td>
                     <td>{format(new Date(claim.date), 'dd MMM yyyy')}</td>
-                    <td>{claim.dealer.name}</td>
+                    <td>
+                      {claim.dealer ? claim.dealer.name : <span style={{ color: "var(--primary)" }}>Direct Customer</span>}
+                    </td>
                     <td>{claim.company.name}</td>
                     <td>{claim.batteryModel}</td>
                     <td>

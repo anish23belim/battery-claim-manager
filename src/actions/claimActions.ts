@@ -26,11 +26,13 @@ export async function addClaim(formData: FormData) {
     const count = await tx.claim.count();
     const claimNumber = `CLM-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
 
+    const parsedDealerId = dealerId && dealerId.trim() !== "" ? dealerId : null;
+
     // Create Claim
     await tx.claim.create({
       data: {
         claimNumber,
-        dealerId,
+        dealerId: parsedDealerId,
         companyId,
         customerName,
         customerMobile,
@@ -41,15 +43,17 @@ export async function addClaim(formData: FormData) {
         saleDate,
         problem,
         remarks,
-        status: "Received from Dealer"
+        status: parsedDealerId ? "Received from Dealer" : "Received from Customer"
       }
     });
 
-    // Increase dealer's pending balance
-    await tx.dealer.update({
-      where: { id: dealerId },
-      data: { openingPendingBalance: { increment: 1 } }
-    });
+    // Increase dealer's pending balance ONLY if it's a dealer claim
+    if (parsedDealerId) {
+      await tx.dealer.update({
+        where: { id: parsedDealerId },
+        data: { openingPendingBalance: { increment: 1 } }
+      });
+    }
   });
 
   revalidatePath("/", "layout");
@@ -68,7 +72,7 @@ export async function deleteClaim(id: string) {
       shouldDecrementBalance = false;
     }
     
-    if (shouldDecrementBalance) {
+    if (shouldDecrementBalance && claim.dealerId) {
       const dealer = await tx.dealer.findUnique({ where: { id: claim.dealerId } });
       if (dealer && dealer.openingPendingBalance > 0) {
         await tx.dealer.update({
@@ -79,6 +83,14 @@ export async function deleteClaim(id: string) {
     }
 
     await tx.claim.delete({ where: { id } });
+  });
+  revalidatePath('/', 'layout');
+}
+
+export async function markDeliveredToCustomer(id: string) {
+  await prisma.claim.update({
+    where: { id },
+    data: { status: "Delivered to Customer" }
   });
   revalidatePath('/', 'layout');
 }

@@ -44,10 +44,12 @@ export default async function ClaimDetailsPage({ params }: { params: Promise<{ i
         <div className="claim-grid">
           <div>
             <h3 style={{ fontSize: "1rem", fontWeight: "bold", marginBottom: "0.5rem", color: "var(--secondary-foreground)" }}>Dealer Info</h3>
-            <p style={{ margin: "0 0 0.25rem 0", fontWeight: 500 }}>{claim.dealer.name}</p>
-            <p style={{ margin: "0 0 0.25rem 0" }}>{claim.dealer.shopName}</p>
-            <p style={{ margin: "0 0 0.25rem 0" }}>{claim.dealer.mobile}</p>
-            <p style={{ margin: "0" }}>{claim.dealer.city}</p>
+            <p style={{ margin: "0 0 0.25rem 0", fontWeight: 500 }}>
+              {claim.dealer ? claim.dealer.name : "Direct Customer"}
+            </p>
+            <p style={{ margin: "0 0 0.25rem 0" }}>{claim.dealer ? claim.dealer.shopName : "N/A"}</p>
+            <p style={{ margin: "0 0 0.25rem 0" }}>{claim.dealer ? claim.dealer.mobile : "N/A"}</p>
+            <p style={{ margin: "0" }}>{claim.dealer ? claim.dealer.city : "N/A"}</p>
           </div>
           <div>
             <h3 style={{ fontSize: "1rem", fontWeight: "bold", marginBottom: "0.5rem", color: "var(--secondary-foreground)" }}>Battery Info</h3>
