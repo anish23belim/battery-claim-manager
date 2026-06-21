@@ -12,16 +12,35 @@ interface DeleteButtonProps {
 export default function DeleteButton({ id, action, entityName = "item" }: DeleteButtonProps) {
   const [isPending, startTransition] = useTransition();
 
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (window.confirm(`Are you sure you want to delete this ${entityName}?`)) {
+      const tr = e.currentTarget.closest("tr");
+      if (tr) {
+        tr.style.opacity = "0.4";
+        tr.style.pointerEvents = "none";
+        tr.style.transition = "opacity 0.2s ease";
+      }
+
       startTransition(async () => {
         try {
           const res = await action(id);
           if (res && res.error) {
             alert(res.error);
+            if (tr) {
+              tr.style.opacity = "1";
+              tr.style.pointerEvents = "auto";
+            }
+          } else {
+            if (tr) {
+              tr.style.display = "none";
+            }
           }
         } catch (error) {
           alert("An error occurred while deleting.");
+          if (tr) {
+            tr.style.opacity = "1";
+            tr.style.pointerEvents = "auto";
+          }
         }
       });
     }
