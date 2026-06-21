@@ -9,8 +9,9 @@ import { format } from "date-fns";
 
 
 
-export default async function BatchesPage({ searchParams }: { searchParams: { q?: string } }) {
-  const q = searchParams.q || "";
+export default async function Page({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const params = await searchParams;
+  const q = params.q || "";
 
   const batches = await prisma.batch.findMany({
     where: q ? {

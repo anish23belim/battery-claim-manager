@@ -8,8 +8,9 @@ import { deleteDealer } from "@/actions/dealerActions";
 
 
 
-export default async function DealersPage({ searchParams }: { searchParams: { q?: string } }) {
-  const q = searchParams.q || "";
+export default async function Page({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const params = await searchParams;
+  const q = params.q || "";
 
   const dealers = await prisma.dealer.findMany({
     where: q ? {

@@ -8,8 +8,9 @@ import { deleteCompany } from "@/actions/companyActions";
 
 
 
-export default async function CompaniesPage({ searchParams }: { searchParams: { q?: string } }) {
-  const q = searchParams.q || "";
+export default async function Page({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const params = await searchParams;
+  const q = params.q || "";
 
   const companies = await prisma.company.findMany({
     where: q ? {
