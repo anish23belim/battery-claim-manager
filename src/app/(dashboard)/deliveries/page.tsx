@@ -1,15 +1,25 @@
 import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { Plus, Search , Eye } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import DeleteButton from "@/components/common/DeleteButton";
+import SearchBar from "@/components/common/SearchBar";
 import { deleteDelivery } from "@/actions/deliveryActions";
 import { format } from "date-fns";
 
 
 
-export default async function DeliveriesPage() {
+export default async function DeliveriesPage({ searchParams }: { searchParams: { q?: string } }) {
+  const q = searchParams.q || "";
+
   const deliveries = await prisma.delivery.findMany({
+    where: q ? {
+      OR: [
+        { deliveryNumber: { contains: q, mode: "insensitive" } },
+        { dealer: { name: { contains: q, mode: "insensitive" } } },
+        { dealer: { shopName: { contains: q, mode: "insensitive" } } }
+      ]
+    } : undefined,
     include: {
       dealer: true,
       _count: {
@@ -31,14 +41,7 @@ export default async function DeliveriesPage() {
 
       <div className="card">
         <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-          <div className="form-control" style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "300px" }}>
-            <Search size={18} color="var(--secondary-foreground)" />
-            <input 
-              type="text" 
-              placeholder="Search deliveries..." 
-              style={{ border: "none", outline: "none", width: "100%", background: "transparent" }}
-            />
-          </div>
+          <SearchBar placeholder="Search by delivery number, dealer..." />
         </div>
 
         <div className="table-container">

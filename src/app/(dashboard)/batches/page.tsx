@@ -1,15 +1,24 @@
 import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { Plus, Search , Eye } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import DeleteButton from "@/components/common/DeleteButton";
+import SearchBar from "@/components/common/SearchBar";
 import { deleteBatch } from "@/actions/batchActions";
 import { format } from "date-fns";
 
 
 
-export default async function BatchesPage() {
+export default async function BatchesPage({ searchParams }: { searchParams: { q?: string } }) {
+  const q = searchParams.q || "";
+
   const batches = await prisma.batch.findMany({
+    where: q ? {
+      OR: [
+        { batchNumber: { contains: q, mode: "insensitive" } },
+        { company: { name: { contains: q, mode: "insensitive" } } }
+      ]
+    } : undefined,
     include: {
       company: true,
       _count: {
@@ -31,14 +40,7 @@ export default async function BatchesPage() {
 
       <div className="card">
         <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-          <div className="form-control" style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "300px" }}>
-            <Search size={18} color="var(--secondary-foreground)" />
-            <input 
-              type="text" 
-              placeholder="Search batches..." 
-              style={{ border: "none", outline: "none", width: "100%", background: "transparent" }}
-            />
-          </div>
+          <SearchBar placeholder="Search by batch number, company..." />
         </div>
 
         <div className="table-container">

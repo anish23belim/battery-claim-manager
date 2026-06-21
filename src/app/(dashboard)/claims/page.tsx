@@ -1,20 +1,35 @@
 import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { Plus, Search, Eye } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import DeleteButton from "@/components/common/DeleteButton";
+import SearchBar from "@/components/common/SearchBar";
 import { deleteClaim } from "@/actions/claimActions";
 import { format } from "date-fns";
 
 
 
-export default async function ClaimsPage() {
+export default async function ClaimsPage({ searchParams }: { searchParams: { q?: string } }) {
+  const q = searchParams.q || "";
+
   const claims = await prisma.claim.findMany({
+    where: q ? {
+      OR: [
+        { claimNumber: { contains: q, mode: "insensitive" } },
+        { customerName: { contains: q, mode: "insensitive" } },
+        { customerMobile: { contains: q, mode: "insensitive" } },
+        { batteryModel: { contains: q, mode: "insensitive" } },
+        { oldSerialNumber: { contains: q, mode: "insensitive" } },
+        { dealer: { name: { contains: q, mode: "insensitive" } } },
+        { company: { name: { contains: q, mode: "insensitive" } } }
+      ]
+    } : undefined,
     include: {
       dealer: true,
-      company: true
+      company: true,
+      batch: true
     },
-    orderBy: { date: "desc" }
+    orderBy: { createdAt: "desc" }
   });
 
   const getStatusBadgeClass = (status: string) => {
@@ -41,14 +56,7 @@ export default async function ClaimsPage() {
 
       <div className="card">
         <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-          <div className="form-control" style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "300px" }}>
-            <Search size={18} color="var(--secondary-foreground)" />
-            <input 
-              type="text" 
-              placeholder="Search claims..." 
-              style={{ border: "none", outline: "none", width: "100%", background: "transparent" }}
-            />
-          </div>
+          <SearchBar placeholder="Search claims, name, serial, number..." />
         </div>
 
         <div className="table-container">

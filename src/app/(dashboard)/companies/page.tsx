@@ -1,14 +1,25 @@
 import React from "react";
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import { Plus, Search , Pencil } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import DeleteButton from "@/components/common/DeleteButton";
+import SearchBar from "@/components/common/SearchBar";
 import { deleteCompany } from "@/actions/companyActions";
 
 
 
-export default async function CompaniesPage() {
+export default async function CompaniesPage({ searchParams }: { searchParams: { q?: string } }) {
+  const q = searchParams.q || "";
+
   const companies = await prisma.company.findMany({
+    where: q ? {
+      OR: [
+        { name: { contains: q, mode: "insensitive" } },
+        { brandName: { contains: q, mode: "insensitive" } },
+        { contactPerson: { contains: q, mode: "insensitive" } },
+        { mobile: { contains: q, mode: "insensitive" } },
+      ]
+    } : undefined,
     orderBy: { name: "asc" }
   });
 
@@ -24,14 +35,7 @@ export default async function CompaniesPage() {
 
       <div className="card">
         <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-          <div className="form-control" style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "300px" }}>
-            <Search size={18} color="var(--secondary-foreground)" />
-            <input 
-              type="text" 
-              placeholder="Search companies..." 
-              style={{ border: "none", outline: "none", width: "100%", background: "transparent" }}
-            />
-          </div>
+          <SearchBar placeholder="Search by name, brand, contact, mobile..." />
         </div>
 
         <div className="table-container">
