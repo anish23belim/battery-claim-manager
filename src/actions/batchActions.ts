@@ -50,7 +50,7 @@ export async function createBatch(formData: FormData) {
 
 
 export async function deleteBatch(id: string) {
-  await prisma.(async (tx) => {
+  await prisma.$transaction(async (tx) => {
     await tx.claim.updateMany({ where: { batchId: id }, data: { batchId: null, status: 'Received from Dealer' } });
     await tx.batch.delete({ where: { id } });
   });

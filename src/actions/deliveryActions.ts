@@ -63,7 +63,7 @@ export async function createDelivery(formData: FormData) {
 
 
 export async function deleteDelivery(id: string) {
-  await prisma.(async (tx) => {
+  await prisma.$transaction(async (tx) => {
     const items = await tx.deliveryItem.findMany({ where: { deliveryId: id } });
     const claimIds = items.map(i => i.claimId);
     if (claimIds.length > 0) {

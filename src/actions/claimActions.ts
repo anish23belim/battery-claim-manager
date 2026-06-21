@@ -60,7 +60,7 @@ export async function addClaim(formData: FormData) {
 export async function deleteClaim(id: string) {
   const claim = await prisma.claim.findUnique({ where: { id }, include: { deliveryItems: true } });
   if (!claim) return;
-  await prisma.(async (tx) => {
+  await prisma.$transaction(async (tx) => {
     if (claim.deliveryItems.length > 0) {
       await tx.deliveryItem.deleteMany({ where: { claimId: id } });
     }
