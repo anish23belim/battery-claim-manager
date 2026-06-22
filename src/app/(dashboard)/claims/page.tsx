@@ -4,6 +4,7 @@ import ClaimsClient from "./ClaimsClient";
 
 export default async function Page() {
   const claims = await prisma.claim.findMany({
+    where: { NOT: { claimNumber: { startsWith: 'LEGACY-' } } },
     include: {
       dealer: true,
       company: true,

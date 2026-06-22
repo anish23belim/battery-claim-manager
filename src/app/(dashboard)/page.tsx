@@ -7,24 +7,36 @@ import { format } from "date-fns";
 
 
 export default async function Dashboard() {
-  const totalClaims = await prisma.claim.count();
+  const totalClaims = await prisma.claim.count({
+    where: { NOT: { claimNumber: { startsWith: 'LEGACY-' } } }
+  });
   
   const pendingAtCompany = await prisma.claim.count({
-    where: { status: "Sent to Company" }
+    where: { 
+      status: "Sent to Company",
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+    }
   });
 
   const replacementDelivered = await prisma.claim.count({
-    where: { status: "Delivered to Dealer" }
+    where: { 
+      status: "Delivered to Dealer",
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+    }
   });
 
   const pendingToDealers = await prisma.claim.count({
-    where: { status: "Replacement Received from Company" }
+    where: { 
+      status: "Replacement Received from Company",
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+    }
   });
 
   const recentClaims = await prisma.claim.findMany({
     take: 5,
     orderBy: { date: "desc" },
-    include: { dealer: true }
+    include: { dealer: true },
+    where: { NOT: { claimNumber: { startsWith: 'LEGACY-' } } }
   });
 
   const getStatusBadgeClass = (status: string) => {
@@ -48,14 +60,16 @@ export default async function Dashboard() {
   const ageingClaims15 = await prisma.claim.count({
     where: { 
       status: { notIn: ["Closed", "Delivered to Dealer"] },
-      date: { lte: fifteenDaysAgo, gt: thirtyDaysAgo }
+      date: { lte: fifteenDaysAgo, gt: thirtyDaysAgo },
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
     }
   });
 
   const ageingClaims30 = await prisma.claim.count({
     where: { 
       status: { notIn: ["Closed", "Delivered to Dealer"] },
-      date: { lte: thirtyDaysAgo }
+      date: { lte: thirtyDaysAgo },
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
     }
   });
 

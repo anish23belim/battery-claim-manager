@@ -23,7 +23,10 @@ export default async function ReportsPage() {
   // Status: "Sent to Company"
   const pendingAtCompany = await prisma.claim.groupBy({
     by: ['companyId'],
-    where: { status: "Sent to Company" },
+    where: { 
+      status: "Sent to Company",
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+    },
     _count: { id: true }
   });
   
