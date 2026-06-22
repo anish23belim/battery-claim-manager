@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 
 
 export async function addDealer(formData: FormData) {
+  const type = formData.get("type") as string || "Dealer";
   const name = formData.get("name") as string;
   const mobile = formData.get("mobile") as string;
   const whatsapp = formData.get("whatsapp") as string;
@@ -18,6 +19,7 @@ export async function addDealer(formData: FormData) {
 
   await prisma.dealer.create({
     data: {
+      type,
       name,
       mobile,
       whatsapp,
