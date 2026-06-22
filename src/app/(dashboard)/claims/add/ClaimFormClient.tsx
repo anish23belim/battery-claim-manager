@@ -8,7 +8,7 @@ import SubmitButton from "@/components/common/SubmitButton";
 export default function ClaimFormClient({ dealers, companies }: { dealers: any[], companies: any[] }) {
   const [isDirectCustomer, setIsDirectCustomer] = useState(false);
   const [isDealerAdvance, setIsDealerAdvance] = useState(false);
-  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
+  const [duplicateWarning, setDuplicateWarning] = useState<{message: string, type: 'error' | 'info'} | null>(null);
   const [isChecking, setIsChecking] = useState(false);
 
   React.useEffect(() => {
@@ -24,7 +24,17 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
         const duplicate = await checkDuplicateSerialNumber(serial.value);
         if (duplicate) {
           const dateStr = duplicate.date ? format(new Date(duplicate.date), "dd MMM yyyy") : "Unknown Date";
-          setDuplicateWarning(`⚠️ Warning: This serial number was already claimed on ${dateStr} in Claim #${duplicate.claimNumber}`);
+          if (duplicate.type === 'DEAD_DUPLICATE') {
+            setDuplicateWarning({
+              message: `⚠️ Alert: This battery was ALREADY CLAIMED as dead on ${dateStr} in Claim #${duplicate.claimNumber}!`,
+              type: 'error'
+            });
+          } else if (duplicate.type === 'REPLACEMENT_HISTORY') {
+            setDuplicateWarning({
+              message: `ℹ️ Info: This battery was given to a customer as a REPLACEMENT on ${dateStr} in Claim #${duplicate.claimNumber}.`,
+              type: 'info'
+            });
+          }
         } else {
           setDuplicateWarning(null);
         }
@@ -132,11 +142,20 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
           />
           {isChecking && <span style={{ position: "absolute", right: "10px", fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>Checking...</span>}
         </div>
-        {duplicateWarning && (
-          <div style={{ marginTop: "0.5rem", padding: "0.75rem", background: "var(--danger-bg)", color: "var(--danger-text)", borderRadius: "var(--radius)", fontSize: "0.875rem", fontWeight: 500 }}>
-            {duplicateWarning}
-          </div>
-        )}
+          {duplicateWarning && (
+            <div style={{
+              marginTop: "0.5rem",
+              padding: "0.75rem",
+              backgroundColor: duplicateWarning.type === 'error' ? "rgba(255, 60, 60, 0.1)" : "rgba(60, 130, 255, 0.1)",
+              color: duplicateWarning.type === 'error' ? "var(--error-color)" : "#3c82ff",
+              borderRadius: "var(--radius)",
+              fontSize: "0.85rem",
+              fontWeight: "500",
+              border: `1px solid ${duplicateWarning.type === 'error' ? "rgba(255, 60, 60, 0.3)" : "rgba(60, 130, 255, 0.3)"}`
+            }}>
+              {duplicateWarning.message}
+            </div>
+          )}
       </div>
 
       {isDealerAdvance && (

@@ -129,20 +129,40 @@ export async function markDeliveredToCustomer(id: string) {
 export async function checkDuplicateSerialNumber(serialNumber: string) {
   if (!serialNumber || serialNumber.trim() === "") return null;
   
-  const existingClaim = await prisma.claim.findFirst({
+  const sn = serialNumber.trim();
+
+  // Check if it was already claimed as a DEAD battery (True Duplicate)
+  const existingDead = await prisma.claim.findFirst({
     where: { 
-      oldSerialNumber: {
-        equals: serialNumber.trim(),
-        mode: 'insensitive'
-      } 
+      oldSerialNumber: { equals: sn, mode: 'insensitive' } 
     },
     select: { claimNumber: true, date: true }
   });
 
-  if (existingClaim) {
+  if (existingDead) {
     return {
-      claimNumber: existingClaim.claimNumber,
-      date: existingClaim.date
+      type: 'DEAD_DUPLICATE',
+      claimNumber: existingDead.claimNumber,
+      date: existingDead.date
+    };
+  }
+
+  // Check if it was given as a REPLACEMENT battery in the past
+  const existingReplacement = await prisma.claim.findFirst({
+    where: {
+      OR: [
+        { dealerReplacementSerialNumber: { equals: sn, mode: 'insensitive' } },
+        { shopReplacementSerialNumber: { equals: sn, mode: 'insensitive' } }
+      ]
+    },
+    select: { claimNumber: true, date: true }
+  });
+
+  if (existingReplacement) {
+    return {
+      type: 'REPLACEMENT_HISTORY',
+      claimNumber: existingReplacement.claimNumber,
+      date: existingReplacement.date
     };
   }
 
