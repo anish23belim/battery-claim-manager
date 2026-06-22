@@ -11,28 +11,46 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(false);
 
-  const handleSerialNumberBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    const serial = e.target.value;
-    if (!serial || serial.trim() === "") {
-      setDuplicateWarning(null);
-      return;
-    }
-
-    setIsChecking(true);
-    try {
-      const duplicate = await checkDuplicateSerialNumber(serial);
-      if (duplicate) {
-        const dateStr = duplicate.date ? format(new Date(duplicate.date), "dd MMM yyyy") : "Unknown Date";
-        setDuplicateWarning(`⚠️ Warning: This serial number was already claimed on ${dateStr} in Claim #${duplicate.claimNumber}`);
-      } else {
+  React.useEffect(() => {
+    const checkSerial = async () => {
+      const serial = document.getElementById('oldSerialNumber') as HTMLInputElement;
+      if (!serial || !serial.value || serial.value.trim() === "") {
         setDuplicateWarning(null);
+        return;
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsChecking(false);
+
+      setIsChecking(true);
+      try {
+        const duplicate = await checkDuplicateSerialNumber(serial.value);
+        if (duplicate) {
+          const dateStr = duplicate.date ? format(new Date(duplicate.date), "dd MMM yyyy") : "Unknown Date";
+          setDuplicateWarning(`⚠️ Warning: This serial number was already claimed on ${dateStr} in Claim #${duplicate.claimNumber}`);
+        } else {
+          setDuplicateWarning(null);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    const input = document.getElementById('oldSerialNumber');
+    let timeoutId: NodeJS.Timeout;
+
+    const handleInput = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(checkSerial, 500);
+    };
+
+    if (input) {
+      input.addEventListener('input', handleInput);
+      return () => {
+        input.removeEventListener('input', handleInput);
+        clearTimeout(timeoutId);
+      };
     }
-  };
+  }, []);
 
   return (
     <form action={addClaim} className="form-grid">
@@ -111,7 +129,6 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
             name="oldSerialNumber" 
             className="form-control" 
             required 
-            onBlur={handleSerialNumberBlur}
           />
           {isChecking && <span style={{ position: "absolute", right: "10px", fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>Checking...</span>}
         </div>
