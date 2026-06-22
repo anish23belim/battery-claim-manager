@@ -130,7 +130,12 @@ export async function checkDuplicateSerialNumber(serialNumber: string) {
   if (!serialNumber || serialNumber.trim() === "") return null;
   
   const existingClaim = await prisma.claim.findFirst({
-    where: { oldSerialNumber: serialNumber.trim() },
+    where: { 
+      oldSerialNumber: {
+        equals: serialNumber.trim(),
+        mode: 'insensitive'
+      } 
+    },
     select: { claimNumber: true, date: true }
   });
 
