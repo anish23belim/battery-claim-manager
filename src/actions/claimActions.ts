@@ -24,9 +24,21 @@ export async function addClaim(formData: FormData) {
   const saleDate = saleDateStr ? new Date(saleDateStr) : null;
 
   await prisma.$transaction(async (tx) => {
-    // Generate Claim Number
-    const count = await tx.claim.count();
-    const claimNumber = `CLM-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+    // Generate Claim Number robustly
+    const currentYear = new Date().getFullYear().toString();
+    const lastClaim = await tx.claim.findFirst({
+      where: { claimNumber: { startsWith: `CLM-${currentYear}-` } },
+      orderBy: { claimNumber: 'desc' }
+    });
+
+    let newNumber = 1;
+    if (lastClaim && lastClaim.claimNumber) {
+      const parts = lastClaim.claimNumber.split('-');
+      if (parts.length === 3) {
+        newNumber = parseInt(parts[2], 10) + 1;
+      }
+    }
+    const claimNumber = `CLM-${currentYear}-${String(newNumber).padStart(4, '0')}`;
 
     const parsedDealerId = dealerId && dealerId.trim() !== "" ? dealerId : null;
 
@@ -51,8 +63,8 @@ export async function addClaim(formData: FormData) {
       }
     });
 
-    // Increase dealer's pending balance ONLY if it's a dealer claim
-    if (parsedDealerId) {
+    // Increase dealer's pending balance ONLY if it's a dealer claim AND it's an advance replacement
+    if (parsedDealerId && isDealerAdvance) {
       await tx.dealer.update({
         where: { id: parsedDealerId },
         data: { openingPendingBalance: { increment: 1 } }
