@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { addClaim, checkDuplicateSerialNumber } from "@/actions/claimActions";
 import { format } from "date-fns";
+import SubmitButton from "@/components/common/SubmitButton";
 
 export default function ClaimFormClient({ dealers, companies }: { dealers: any[], companies: any[] }) {
   const [isDirectCustomer, setIsDirectCustomer] = useState(false);
@@ -168,7 +169,7 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
 
       <div className="col-span-2" style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}>
         <button type="reset" className="btn btn-outline">Reset</button>
-        <button type="submit" className="btn btn-primary">Submit Claim</button>
+        <SubmitButton>Submit Claim</SubmitButton>
       </div>
     </form>
   );

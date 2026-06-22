@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Printer, MessageCircle, CheckCircle, Store } from "lucide-react";
 import { markDeliveredToCustomer, settleDealerAdvance, closeShopSettledClaim } from "@/actions/claimActions";
+import SubmitButton from "@/components/common/SubmitButton";
 
 export default function ClaimActions({ claim, dealer }: any) {
   const [showSettleModal, setShowSettleModal] = useState(false);
@@ -53,10 +54,10 @@ Contact: 7240171727, 9799457164`;
 
       {!dealer && claim.status !== "Delivered to Customer" && claim.status !== "Closed" && (
         <form action={() => markDeliveredToCustomer(claim.id)} style={{ display: "inline-block" }}>
-          <button type="submit" className="btn btn-primary">
-            <CheckCircle size={18} />
+          <SubmitButton>
+            <CheckCircle size={18} style={{ display: "inline" }} />
             Mark Delivered to Customer
-          </button>
+          </SubmitButton>
         </form>
       )}
 
@@ -71,10 +72,10 @@ Contact: 7240171727, 9799457164`;
 
       {dealer && claim.isDealerAdvance && claim.isShopSettled && claim.status === "Replacement Received from Company" && (
         <form action={() => closeShopSettledClaim(claim.id)} style={{ display: "inline-block" }}>
-          <button type="submit" className="btn btn-primary" style={{ background: "var(--success)" }}>
-            <CheckCircle size={18} />
+          <SubmitButton className="btn btn-primary" style={{ background: "var(--success)" }}>
+            <CheckCircle size={18} style={{ display: "inline" }} />
             Close Claim & Move to Shop Stock
-          </button>
+          </SubmitButton>
         </form>
       )}
 
@@ -102,7 +103,7 @@ Contact: 7240171727, 9799457164`;
                 settleDealerAdvance(claim.id, shopSerial);
                 setShowSettleModal(false);
               }}>
-                <button type="submit" className="btn btn-primary" disabled={!shopSerial}>Confirm Delivery</button>
+                <SubmitButton disabled={!shopSerial}>Confirm Delivery</SubmitButton>
               </form>
             </div>
           </div>
