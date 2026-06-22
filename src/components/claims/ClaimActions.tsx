@@ -15,7 +15,29 @@ export default function ClaimActions({ claim, dealer }: any) {
   const contactName = dealer ? dealer.name : (claim.customerName || "Customer");
   const contactMobile = dealer ? (dealer.whatsapp || dealer.mobile) : claim.customerMobile;
 
-  const whatsappMessage = `Dear ${contactName}, your battery replacement claim no. ${claim.claimNumber} (SN: ${claim.oldSerialNumber || "N/A"}) is currently ${claim.status}.\n\nRegards,\nBharat Auto Agency Tinwari\nContact: 7240171727, 9799457164`;
+  const hindiStatusMap: Record<string, string> = {
+    "Received from Dealer": "डीलर से प्राप्त हो गया है",
+    "Received from Customer": "कस्टमर से प्राप्त हो गया है",
+    "Sent to Company": "कंपनी को भेज दिया गया है",
+    "Replacement Received from Company": "कंपनी से नई बैटरी आ गई है",
+    "Delivered to Dealer": "डीलर को दे दिया गया है",
+    "Delivered to Customer": "कस्टमर को दे दिया गया है",
+    "Closed": "पूरा हो गया है",
+    "Closed (Moved to Shop Stock)": "पूरा (शॉप स्टॉक में जमा) हो गया है",
+    "Rejected by Company": "कंपनी द्वारा रिजेक्ट कर दिया गया है",
+  };
+
+  const hindiStatus = hindiStatusMap[claim.status] || claim.status;
+
+  const whatsappMessage = `Dear ${contactName},
+Your battery replacement claim for model *${claim.batteryModel}* (Claim No: ${claim.claimNumber}, SN: ${claim.oldSerialNumber || "N/A"}) is currently: *${claim.status}*.
+
+नमस्ते ${contactName},
+आपके *${claim.batteryModel}* मॉडल की बैटरी का क्लेम (Claim No: ${claim.claimNumber}, SN: ${claim.oldSerialNumber || "N/A"}) अभी *${hindiStatus}*।
+
+Regards,
+*Bharat Auto Agency Tinwari*
+Contact: 7240171727, 9799457164`;
   const whatsappUrl = `https://wa.me/${contactMobile}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
