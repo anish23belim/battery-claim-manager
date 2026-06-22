@@ -15,7 +15,7 @@ export default function ClaimActions({ claim, dealer }: any) {
   const contactName = dealer ? dealer.name : (claim.customerName || "Customer");
   const contactMobile = dealer ? (dealer.whatsapp || dealer.mobile) : claim.customerMobile;
 
-  const whatsappMessage = `Dear ${contactName}, your battery replacement claim no. ${claim.claimNumber} (SN: ${claim.oldSerialNumber || "N/A"}) is currently ${claim.status}.`;
+  const whatsappMessage = `Dear ${contactName}, your battery replacement claim no. ${claim.claimNumber} (SN: ${claim.oldSerialNumber || "N/A"}) is currently ${claim.status}.\n\nRegards,\nBharat Auto Agency Tinwari\nContact: 7240171727, 9799457164`;
   const whatsappUrl = `https://wa.me/${contactMobile}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
