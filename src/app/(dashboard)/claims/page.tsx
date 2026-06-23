@@ -2,6 +2,8 @@ import React from "react";
 import prisma from "@/lib/prisma";
 import ClaimsClient from "./ClaimsClient";
 
+import { Suspense } from "react";
+
 export default async function Page() {
   const claims = await prisma.claim.findMany({
     where: { NOT: { claimNumber: { startsWith: 'LEGACY-' } } },
@@ -13,5 +15,9 @@ export default async function Page() {
     orderBy: { createdAt: "desc" }
   });
 
-  return <ClaimsClient initialData={claims} />;
+  return (
+    <Suspense fallback={<div>Loading claims...</div>}>
+      <ClaimsClient initialData={claims} />
+    </Suspense>
+  );
 }

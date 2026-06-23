@@ -5,19 +5,32 @@ import ReportTable from "@/components/reports/ReportTable";
 
 
 export default async function ReportsPage() {
-  // 1. Dealer-wise Pending Replacement Report
-  const dealers = await prisma.dealer.findMany({
-    orderBy: { openingPendingBalance: "desc" },
-    where: { openingPendingBalance: { gt: 0 } }
+  const dealers = await prisma.dealer.findMany();
+  
+  // Get all active pending claims for dealers
+  const pendingClaims = await prisma.claim.groupBy({
+    by: ['dealerId'],
+    where: {
+      dealerId: { not: null },
+      status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"] },
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+    },
+    _count: { id: true }
   });
 
-  const dealerReportData = dealers.map(d => ({
-    "Dealer Name": d.name,
-    "Shop Name": d.shopName,
-    "Mobile": d.mobile,
-    "City": d.city,
-    "Pending Replacements": d.openingPendingBalance
-  }));
+  const dealerReportData = dealers.map(d => {
+    const activePending = pendingClaims.find(p => p.dealerId === d.id)?._count.id || 0;
+    const totalPending = d.openingPendingBalance + activePending;
+    
+    return {
+      "Dealer Name": d.name,
+      "Shop Name": d.shopName,
+      "Mobile": d.mobile,
+      "City": d.city,
+      "Pending Replacements": totalPending
+    };
+  }).filter(row => row["Pending Replacements"] > 0)
+    .sort((a, b) => b["Pending Replacements"] - a["Pending Replacements"]);
 
   // 2. Company-wise Pending Claims Report
   // Status: "Sent to Company"

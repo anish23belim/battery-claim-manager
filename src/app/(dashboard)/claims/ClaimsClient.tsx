@@ -9,10 +9,16 @@ import { deleteClaim } from "@/actions/claimActions";
 import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import * as XLSX from "xlsx";
 
+import { useSearchParams } from "next/navigation";
+
 export default function ClaimsClient({ initialData }: { initialData: any[] }) {
+  const searchParams = useSearchParams();
+  const initialFilter = searchParams.get('status') || searchParams.get('filter') || "All";
+
   const [q, setQ] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState(initialFilter);
 
   const filteredData = initialData.filter((claim) => {
     // Check Date Range first
@@ -34,17 +40,29 @@ export default function ClaimsClient({ initialData }: { initialData: any[] }) {
     }
 
     // Then check search query
-    if (!q) return true;
-    const lowerQ = q.toLowerCase();
-    return (
-      (claim.claimNumber && claim.claimNumber.toLowerCase().includes(lowerQ)) ||
-      (claim.customerName && claim.customerName.toLowerCase().includes(lowerQ)) ||
-      (claim.customerMobile && claim.customerMobile.toLowerCase().includes(lowerQ)) ||
-      (claim.batteryModel && claim.batteryModel.toLowerCase().includes(lowerQ)) ||
-      (claim.oldSerialNumber && claim.oldSerialNumber.toLowerCase().includes(lowerQ)) ||
-      (claim.dealer?.name && claim.dealer.name.toLowerCase().includes(lowerQ)) ||
-      (claim.company?.name && claim.company.name.toLowerCase().includes(lowerQ))
-    );
+    if (q) {
+      const lowerQ = q.toLowerCase();
+      const matchesSearch = (claim.claimNumber && claim.claimNumber.toLowerCase().includes(lowerQ)) ||
+        (claim.customerName && claim.customerName.toLowerCase().includes(lowerQ)) ||
+        (claim.customerMobile && claim.customerMobile.toLowerCase().includes(lowerQ)) ||
+        (claim.batteryModel && claim.batteryModel.toLowerCase().includes(lowerQ)) ||
+        (claim.oldSerialNumber && claim.oldSerialNumber.toLowerCase().includes(lowerQ)) ||
+        (claim.dealer?.name && claim.dealer.name.toLowerCase().includes(lowerQ)) ||
+        (claim.company?.name && claim.company.name.toLowerCase().includes(lowerQ));
+      if (!matchesSearch) return false;
+    }
+
+    // Finally check status filter
+    if (statusFilter !== "All") {
+      if (statusFilter === "pending-dealer") {
+        if (!claim.dealerId) return false;
+        if (["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"].includes(claim.status)) return false;
+      } else if (claim.status !== statusFilter) {
+        return false;
+      }
+    }
+
+    return true;
   });
 
   const getStatusBadgeClass = (status: string) => {
@@ -109,6 +127,23 @@ export default function ClaimsClient({ initialData }: { initialData: any[] }) {
             />
           </div>
           <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+            <select 
+              className="form-control" 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ width: "auto" }}
+            >
+              <option value="All">All Statuses</option>
+              <option value="Received from Dealer">Received from Dealer</option>
+              <option value="Received from Customer">Received from Customer</option>
+              <option value="Sent to Company">Sent to Company</option>
+              <option value="Replacement Received from Company">Replacement Received from Company</option>
+              <option value="Delivered to Dealer">Delivered to Dealer</option>
+              <option value="Delivered to Customer">Delivered to Customer</option>
+              <option value="Closed">Closed</option>
+              <option value="Closed (Moved to Shop Stock)">Closed (Moved to Shop Stock)</option>
+              <option value="pending-dealer">⚠️ Pending to Dealers</option>
+            </select>
             <input 
               type="date" 
               className="form-control" 

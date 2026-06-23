@@ -27,7 +27,8 @@ export default async function Dashboard() {
 
   const pendingToDealers = await prisma.claim.count({
     where: { 
-      status: "Replacement Received from Company",
+      dealerId: { not: null },
+      status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"] },
       NOT: { claimNumber: { startsWith: 'LEGACY-' } }
     }
   });
@@ -108,7 +109,7 @@ export default async function Dashboard() {
           </div>
         </Link>
 
-        <Link href="/claims" style={{ textDecoration: "none", color: "inherit" }}>
+        <Link href="/claims?status=Sent+to+Company" style={{ textDecoration: "none", color: "inherit" }}>
           <div className="card stat-card">
             <div style={{ padding: "1rem", background: "var(--warning-bg)", color: "var(--warning-text)", borderRadius: "var(--radius)" }}>
               <FileBox size={24} />
@@ -120,7 +121,7 @@ export default async function Dashboard() {
           </div>
         </Link>
 
-        <Link href="/claims" style={{ textDecoration: "none", color: "inherit" }}>
+        <Link href="/claims?status=Delivered+to+Dealer" style={{ textDecoration: "none", color: "inherit" }}>
           <div className="card stat-card">
             <div style={{ padding: "1rem", background: "var(--success-bg)", color: "var(--success-text)", borderRadius: "var(--radius)" }}>
               <Truck size={24} />
@@ -132,7 +133,7 @@ export default async function Dashboard() {
           </div>
         </Link>
 
-        <Link href="/claims" style={{ textDecoration: "none", color: "inherit" }}>
+        <Link href="/claims?filter=pending-dealer" style={{ textDecoration: "none", color: "inherit" }}>
           <div className="card stat-card">
             <div style={{ padding: "1rem", background: "var(--danger-bg)", color: "var(--danger-text)", borderRadius: "var(--radius)" }}>
               <Users size={24} />
