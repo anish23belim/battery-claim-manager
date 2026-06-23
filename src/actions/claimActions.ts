@@ -42,24 +42,31 @@ export async function addClaim(formData: FormData) {
 
     const parsedDealerId = dealerId && dealerId.trim() !== "" ? dealerId : null;
 
-    // Create Claim
-    await tx.claim.create({
+    // Remove leading apostrophe if user pastes it directly from Excel
+    const cleanOldSerial = oldSerialNumber ? oldSerialNumber.trim().replace(/^'+/, '') : "";
+    const cleanShopReplacement = shopReplacementSerialNumber ? shopReplacementSerialNumber.trim().replace(/^'+/, '') : null;
+    const cleanDealerReplacement = dealerReplacementSerialNumber ? dealerReplacementSerialNumber.trim().replace(/^'+/, '') : null;
+
+    // Insert new claim
+    const newClaim = await tx.claim.create({
       data: {
         claimNumber,
+        date: new Date(),
         dealerId: parsedDealerId,
+        customerName: customerName ? customerName.trim() : null,
+        customerMobile: customerMobile ? customerMobile.trim() : null,
         companyId,
-        customerName,
-        customerMobile,
-        batteryModel,
-        oldSerialNumber,
+        batteryModel: batteryModel.trim(),
+        oldSerialNumber: cleanOldSerial,
         batteryType,
-        warrantyCard,
+        warrantyCard: warrantyCard ? warrantyCard.trim() : null,
         saleDate,
-        problem,
-        remarks,
+        problem: problem ? problem.trim() : null,
+        remarks: remarks ? remarks.trim() : null,
+        status: parsedDealerId ? "Received from Dealer" : "Received from Customer",
         isDealerAdvance,
-        dealerReplacementSerialNumber: isDealerAdvance ? dealerReplacementSerialNumber : null,
-        status: parsedDealerId ? "Received from Dealer" : "Received from Customer"
+        shopReplacementSerialNumber: cleanShopReplacement,
+        dealerReplacementSerialNumber: cleanDealerReplacement,
       }
     });
 
@@ -129,7 +136,7 @@ export async function markDeliveredToCustomer(id: string) {
 export async function checkDuplicateSerialNumber(serialNumber: string) {
   if (!serialNumber || serialNumber.trim() === "") return null;
   
-  const sn = serialNumber.trim();
+  const sn = serialNumber.trim().replace(/^'+/, '');
 
   // Check if it was already claimed as a DEAD battery (True Duplicate)
   const existingDead = await prisma.claim.findFirst({
