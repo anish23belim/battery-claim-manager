@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
-import { Download, MessageCircle, Filter } from "lucide-react";
+import { Download, MessageCircle, Filter, Plus, UserPlus } from "lucide-react";
 import WhatsAppButton from "@/components/common/WhatsAppButton";
+import { addMarketingContact } from "@/actions/marketingActions";
 
 type Contact = {
   id: string;
@@ -20,6 +21,8 @@ export default function MarketingClient({ initialData }: { initialData: Contact[
   const [messageTemplate, setMessageTemplate] = useState<string>(
     "नमस्ते [NAME],\n\nआपकी बैटरी को काफी समय हो गया है। अगर आपको बैकअप में कोई समस्या आ रही है तो आज ही हमसे संपर्क करें और फ्री हेल्थ चेकअप का लाभ उठाएं!\n\nधन्यवाद,\nBharat Auto Agency Tinwari"
   );
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const filteredData = initialData.filter(contact => {
     if (filterAge === "all") return true;
@@ -49,11 +52,59 @@ export default function MarketingClient({ initialData }: { initialData: Contact[
     <div>
       <div className="claim-header" style={{ marginBottom: "1.5rem" }}>
         <h1 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Marketing & Retention</h1>
-        <button onClick={exportToExcel} className="btn btn-outline" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Download size={18} />
-          Export to Excel
-        </button>
+        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+          <button onClick={() => setShowAddForm(!showAddForm)} className="btn btn-primary" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            {showAddForm ? <Filter size={18} /> : <UserPlus size={18} />}
+            {showAddForm ? "Cancel" : "Add Contact"}
+          </button>
+          <button onClick={exportToExcel} className="btn btn-outline" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <Download size={18} />
+            Export to Excel
+          </button>
+        </div>
       </div>
+
+      {showAddForm && (
+        <div className="card" style={{ marginBottom: "2rem", border: "2px solid var(--primary)" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <UserPlus size={20} />
+            Add Custom Contact
+          </h2>
+          <form action={async (formData) => {
+            setIsSubmitting(true);
+            try {
+              await addMarketingContact(formData);
+              setShowAddForm(false);
+            } catch (err) {
+              alert("Error adding contact");
+            } finally {
+              setIsSubmitting(false);
+            }
+          }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
+              <div className="form-group">
+                <label>Customer Name *</label>
+                <input type="text" name="name" className="form-control" required placeholder="e.g. Rahul Kumar" />
+              </div>
+              <div className="form-group">
+                <label>Mobile Number *</label>
+                <input type="tel" name="mobile" className="form-control" required placeholder="10 digit number" />
+              </div>
+              <div className="form-group">
+                <label>Battery Model (Optional)</label>
+                <input type="text" name="batteryModel" className="form-control" placeholder="e.g. 150AH Tall Tubular" />
+              </div>
+              <div className="form-group">
+                <label>Purchase Date (Optional)</label>
+                <input type="date" name="purchaseDate" className="form-control" defaultValue={new Date().toISOString().split('T')[0]} />
+              </div>
+            </div>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? "Adding..." : "Save Contact"}
+            </button>
+          </form>
+        </div>
+      )}
 
       <div className="card" style={{ marginBottom: "2rem" }}>
         <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", marginBottom: "1rem" }}>Campaign Settings</h2>

@@ -11,6 +11,11 @@ export default async function MarketingPage() {
     orderBy: { date: 'desc' }
   });
 
+  const manualContacts = await prisma.dealer.findMany({
+    where: { type: "Marketing" },
+    orderBy: { createdAt: 'desc' }
+  });
+
   const contactsMap = new Map();
 
   for (const claim of allClaims) {
@@ -39,6 +44,24 @@ export default async function MarketingPage() {
         type,
         lastClaimDate: claim.date,
         batteryModel: `${claim.company?.name || ''} ${claim.company?.brandName ? `(${claim.company.brandName})` : ''} - ${claim.batteryModel}`,
+        ageInYears: parseFloat(ageInYears)
+      });
+    }
+  }
+
+  // Add manual contacts
+  for (const contact of manualContacts) {
+    if (contact.mobile && !contactsMap.has(contact.mobile)) {
+      const ageInMs = Date.now() - new Date(contact.createdAt).getTime();
+      const ageInYears = (ageInMs / (1000 * 60 * 60 * 24 * 365.25)).toFixed(1);
+
+      contactsMap.set(contact.mobile, {
+        id: contact.id,
+        name: contact.name,
+        mobile: contact.mobile,
+        type: "Direct Customer",
+        lastClaimDate: contact.createdAt,
+        batteryModel: contact.shopName, // We stored model in shopName
         ageInYears: parseFloat(ageInYears)
       });
     }
