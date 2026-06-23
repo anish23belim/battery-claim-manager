@@ -28,14 +28,14 @@ export default async function DeliveryDetailsPage({ params }: { params: Promise<
 
   return (
     <div>
-      <div className="no-print" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+      <div className="no-print claim-header">
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <Link href="/deliveries" className="btn btn-outline" style={{ padding: "0.5rem" }}>
             <ArrowLeft size={18} />
           </Link>
           <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", margin: 0 }}>Delivery Details</h1>
         </div>
-        <div style={{ display: "flex", gap: "1rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
           <WhatsAppButton 
             mobile={delivery.dealer.mobile} 
             message={
