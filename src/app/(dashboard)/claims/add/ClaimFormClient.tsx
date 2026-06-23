@@ -8,7 +8,7 @@ import SubmitButton from "@/components/common/SubmitButton";
 export default function ClaimFormClient({ dealers, companies }: { dealers: any[], companies: any[] }) {
   const [isDirectCustomer, setIsDirectCustomer] = useState(false);
   const [isDealerAdvance, setIsDealerAdvance] = useState(false);
-  const [duplicateWarning, setDuplicateWarning] = useState<{message: string, type: 'error' | 'info'} | null>(null);
+  const [duplicateWarning, setDuplicateWarning] = useState<{message: string, type: 'error' | 'info', claimId: string} | null>(null);
   const [isChecking, setIsChecking] = useState(false);
 
   React.useEffect(() => {
@@ -27,12 +27,14 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
           if (duplicate.type === 'DEAD_DUPLICATE') {
             setDuplicateWarning({
               message: `⚠️ Alert: This battery was ALREADY CLAIMED as dead on ${dateStr} in Claim #${duplicate.claimNumber}!`,
-              type: 'error'
+              type: 'error',
+              claimId: duplicate.id
             });
           } else if (duplicate.type === 'REPLACEMENT_HISTORY') {
             setDuplicateWarning({
               message: `ℹ️ Info: This battery was given to a customer as a REPLACEMENT on ${dateStr} in Claim #${duplicate.claimNumber}.`,
-              type: 'info'
+              type: 'info',
+              claimId: duplicate.id
             });
           }
         } else {
@@ -151,9 +153,25 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
               borderRadius: "var(--radius)",
               fontSize: "0.85rem",
               fontWeight: "500",
-              border: `1px solid ${duplicateWarning.type === 'error' ? "rgba(255, 60, 60, 0.3)" : "rgba(60, 130, 255, 0.3)"}`
+              border: `1px solid ${duplicateWarning.type === 'error' ? "rgba(255, 60, 60, 0.3)" : "rgba(60, 130, 255, 0.3)"}`,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
             }}>
-              {duplicateWarning.message}
+              <span>{duplicateWarning.message}</span>
+              <a 
+                href={`/claims/${duplicateWarning.claimId}`} 
+                target="_blank" 
+                rel="noreferrer"
+                style={{
+                  color: duplicateWarning.type === 'error' ? "var(--error-color)" : "#3c82ff",
+                  textDecoration: "underline",
+                  whiteSpace: "nowrap",
+                  marginLeft: "1rem"
+                }}
+              >
+                🔍 View Details
+              </a>
             </div>
           )}
       </div>

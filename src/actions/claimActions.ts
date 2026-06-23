@@ -136,12 +136,13 @@ export async function checkDuplicateSerialNumber(serialNumber: string) {
     where: { 
       oldSerialNumber: { equals: sn, mode: 'insensitive' } 
     },
-    select: { claimNumber: true, date: true }
+    select: { id: true, claimNumber: true, date: true }
   });
 
   if (existingDead) {
     return {
       type: 'DEAD_DUPLICATE',
+      id: existingDead.id,
       claimNumber: existingDead.claimNumber,
       date: existingDead.date
     };
@@ -155,12 +156,13 @@ export async function checkDuplicateSerialNumber(serialNumber: string) {
         { shopReplacementSerialNumber: { equals: sn, mode: 'insensitive' } }
       ]
     },
-    select: { claimNumber: true, date: true }
+    select: { id: true, claimNumber: true, date: true }
   });
 
   if (existingReplacement) {
     return {
       type: 'REPLACEMENT_HISTORY',
+      id: existingReplacement.id,
       claimNumber: existingReplacement.claimNumber,
       date: existingReplacement.date
     };
