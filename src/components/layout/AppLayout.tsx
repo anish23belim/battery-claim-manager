@@ -16,7 +16,8 @@ import {
   Menu,
   Bell,
   LogOut,
-  X
+  X,
+  Rocket
 } from "lucide-react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -57,6 +58,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { name: "Company Batch", href: "/batches", icon: FileBox },
     { name: "Dealer Delivery", href: "/deliveries", icon: Truck },
     { name: "Reports", href: "/reports", icon: BarChart3 },
+    { name: "Marketing", href: "/marketing", icon: Rocket },
     { name: "Settings", href: "/settings", icon: Settings },
   ];
 
