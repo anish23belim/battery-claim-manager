@@ -46,7 +46,7 @@ Dear ${delivery.dealer.name},
 
 Your replacement batteries have been delivered:
 ${delivery.items.map((item, index) => 
-  `${index + 1}. ${item.claim.company.name} - ${item.claim.batteryModel}\n   (Old SN: ${item.claim.oldSerialNumber || "N/A"}${item.newSerialNumber ? `, New SN: ${item.newSerialNumber}` : ''})`
+  `${index + 1}. *${item.claim.company.name} ${item.claim.company.brandName ? `(${item.claim.company.brandName})` : ""} - ${item.claim.batteryModel}*\n   (Old SN: ${item.claim.oldSerialNumber || "N/A"}${item.newSerialNumber ? `, New SN: ${item.newSerialNumber}` : ''})`
 ).join('\n')}
 
 ${delivery.remarks ? `Remarks: ${delivery.remarks}\n` : ''}

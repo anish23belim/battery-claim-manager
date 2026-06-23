@@ -30,11 +30,18 @@ export default function ClaimActions({ claim, dealer }: any) {
 
   const hindiStatus = hindiStatusMap[claim.status] || claim.status;
 
-  const whatsappMessage = `Dear ${contactName},
-Your battery replacement claim for model *${claim.batteryModel}* (Claim No: ${claim.claimNumber}, SN: ${claim.oldSerialNumber || "N/A"}) is currently: *${claim.status}*.
+  const formattedDate = new Date(claim.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  const whatsappMessage = `*Battery Claim Status Update*
+Claim No: ${claim.claimNumber}
+Date: ${formattedDate}
+Dear ${contactName},
 
-नमस्ते ${contactName},
-आपके *${claim.batteryModel}* मॉडल की बैटरी का क्लेम (Claim No: ${claim.claimNumber}, SN: ${claim.oldSerialNumber || "N/A"}) अभी *${hindiStatus}*।
+Your battery replacement claim for:
+*${claim.company?.name || "Unknown"} ${claim.company?.brandName ? `(${claim.company.brandName})` : ""} - ${claim.batteryModel}*
+(Old SN: ${claim.oldSerialNumber || "N/A"})
+
+Current Status: *${claim.status}*
+(${hindiStatus})
 
 Regards,
 *Bharat Auto Agency Tinwari*
