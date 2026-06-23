@@ -44,7 +44,6 @@ export async function addClaim(formData: FormData) {
 
     // Remove leading apostrophe if user pastes it directly from Excel
     const cleanOldSerial = oldSerialNumber ? oldSerialNumber.trim().replace(/^'+/, '') : "";
-    const cleanShopReplacement = shopReplacementSerialNumber ? shopReplacementSerialNumber.trim().replace(/^'+/, '') : null;
     const cleanDealerReplacement = dealerReplacementSerialNumber ? dealerReplacementSerialNumber.trim().replace(/^'+/, '') : null;
 
     // Insert new claim
@@ -61,11 +60,10 @@ export async function addClaim(formData: FormData) {
         batteryType,
         warrantyCard: warrantyCard ? warrantyCard.trim() : null,
         saleDate,
-        problem: problem ? problem.trim() : null,
+        problem: problem ? problem.trim() : "",
         remarks: remarks ? remarks.trim() : null,
         status: parsedDealerId ? "Received from Dealer" : "Received from Customer",
         isDealerAdvance,
-        shopReplacementSerialNumber: cleanShopReplacement,
         dealerReplacementSerialNumber: cleanDealerReplacement,
       }
     });
@@ -179,6 +177,7 @@ export async function checkDuplicateSerialNumber(serialNumber: string) {
 }
 
 export async function settleDealerAdvance(id: string, shopReplacementSerialNumber: string) {
+  const cleanShopReplacement = shopReplacementSerialNumber ? shopReplacementSerialNumber.trim().replace(/^'+/, '') : "";
   await prisma.$transaction(async (tx) => {
     const claim = await tx.claim.findUnique({ where: { id } });
     if (!claim || !claim.isDealerAdvance || claim.isShopSettled) return;
@@ -194,7 +193,7 @@ export async function settleDealerAdvance(id: string, shopReplacementSerialNumbe
       where: { id },
       data: { 
         isShopSettled: true,
-        shopReplacementSerialNumber 
+        shopReplacementSerialNumber: cleanShopReplacement 
       }
     });
   });
