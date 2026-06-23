@@ -77,7 +77,8 @@ Bharat Auto Agency Tinwari`
 
         <div style={{ marginBottom: "2rem" }}>
           <h3 style={{ fontSize: "1rem", fontWeight: "bold", marginBottom: "0.5rem", color: "var(--secondary-foreground)" }}>Delivered Items ({delivery.quantity} Batteries)</h3>
-          <table className="table" style={{ width: "100%", fontSize: "0.875rem" }}>
+          <div style={{ overflowX: "auto", width: "100%" }}>
+            <table className="table" style={{ width: "100%", fontSize: "0.875rem", minWidth: "600px" }}>
             <thead>
               <tr>
                 <th style={{ background: "transparent", padding: "0.5rem 0", borderBottom: "2px solid var(--foreground)" }}>Claim No</th>
@@ -100,6 +101,7 @@ Bharat Auto Agency Tinwari`
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {delivery.remarks && (
