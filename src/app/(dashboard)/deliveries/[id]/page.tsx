@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import PrintButton from "@/components/common/PrintButton";
+import WhatsAppButton from "@/components/common/WhatsAppButton";
 
 
 
@@ -34,7 +35,27 @@ export default async function DeliveryDetailsPage({ params }: { params: Promise<
           </Link>
           <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", margin: 0 }}>Delivery Details</h1>
         </div>
-        <PrintButton />
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <WhatsAppButton 
+            mobile={delivery.dealer.mobile} 
+            message={
+`*Battery Replacement Delivery*
+Delivery No: ${delivery.deliveryNumber}
+Date: ${format(new Date(delivery.date), 'dd MMM yyyy')}
+Dear ${delivery.dealer.name},
+
+Your replacement batteries have been delivered:
+${delivery.items.map((item, index) => 
+  `${index + 1}. ${item.claim.company.name} - ${item.claim.batteryModel}\n   (Old SN: ${item.claim.oldSerialNumber || "N/A"}${item.newSerialNumber ? `, New SN: ${item.newSerialNumber}` : ''})`
+).join('\n')}
+
+${delivery.remarks ? `Remarks: ${delivery.remarks}\n` : ''}
+Regards,
+Bharat Auto Agency Tinwari`
+            } 
+          />
+          <PrintButton />
+        </div>
       </div>
 
       <div className="card" style={{ maxWidth: "800px", margin: "0 auto" }}>

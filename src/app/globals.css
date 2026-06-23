@@ -47,6 +47,8 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 * {
@@ -272,11 +274,13 @@ button {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: var(--radius);
+  -webkit-overflow-scrolling: touch;
 }
 .table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  min-width: 600px; /* Ensure table doesn't squish too much on mobile */
 }
 .table th {
   background: var(--secondary);
@@ -285,11 +289,13 @@ button {
   font-weight: 500;
   color: var(--secondary-foreground);
   border-bottom: 1px solid var(--card-border);
+  white-space: nowrap;
 }
 .table td {
   padding: 1rem;
   font-size: 0.875rem;
   border-bottom: 1px solid var(--card-border);
+  word-break: break-word;
 }
 .table tr:last-child td {
   border-bottom: none;
