@@ -97,8 +97,8 @@ export default function DealersClient({ initialData }: { initialData: any[] }) {
                     <td>{dealer.mobile}</td>
                     <td>{dealer.city}</td>
                     <td>
-                      <span className={`badge ${dealer.openingPendingBalance > 0 ? 'badge-warning' : 'badge-default'}`}>
-                        {dealer.openingPendingBalance}
+                      <span className={`badge ${dealer.totalPending > 0 ? 'badge-warning' : 'badge-default'}`}>
+                        {dealer.totalPending}
                       </span>
                     </td>
                     <td style={{ textAlign: "center" }}>

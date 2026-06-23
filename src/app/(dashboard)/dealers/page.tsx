@@ -7,5 +7,24 @@ export default async function Page() {
     orderBy: { name: "asc" }
   });
 
-  return <DealersClient initialData={dealers} />;
+  // Get active pending claims for dealers
+  const pendingClaims = await prisma.claim.groupBy({
+    by: ['dealerId'],
+    where: {
+      dealerId: { not: null },
+      status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"] },
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+    },
+    _count: { id: true }
+  });
+
+  const dealersWithTotalPending = dealers.map(dealer => {
+    const activePending = pendingClaims.find(p => p.dealerId === dealer.id)?._count.id || 0;
+    return {
+      ...dealer,
+      totalPending: dealer.openingPendingBalance + activePending
+    };
+  });
+
+  return <DealersClient initialData={dealersWithTotalPending} />;
 }

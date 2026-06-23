@@ -48,13 +48,9 @@ export async function createDelivery(formData: FormData) {
       }
     });
 
-    // Decrease dealer pending replacement balance
-    await tx.dealer.update({
-      where: { id: dealerId },
-      data: {
-        openingPendingBalance: { decrement: claimIds.length }
-      }
-    });
+    // We no longer decrease openingPendingBalance automatically.
+    // The claim status is now "Delivered to Dealer", so it will automatically 
+    // be excluded from the dynamic pending claims calculation.
   });
 
   revalidatePath("/");
@@ -69,13 +65,8 @@ export async function deleteDelivery(id: string) {
     const claimIds = items.map(i => i.claimId);
     if (claimIds.length > 0) {
       await tx.claim.updateMany({ where: { id: { in: claimIds } }, data: { status: 'Replacement Received from Company' } });
-      const delivery = await tx.delivery.findUnique({ where: { id } });
-      if (delivery) {
-        await tx.dealer.update({
-          where: { id: delivery.dealerId },
-          data: { openingPendingBalance: { increment: claimIds.length } }
-        });
-      }
+      // We no longer mutate openingPendingBalance. 
+      // The claim status reverts, so it will automatically be INCLUDED in dynamic pending claims again.
     }
     await tx.deliveryItem.deleteMany({ where: { deliveryId: id } });
     await tx.delivery.delete({ where: { id } });

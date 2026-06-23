@@ -68,13 +68,9 @@ export async function addClaim(formData: FormData) {
       }
     });
 
-    // Increase dealer's pending balance ONLY if it's a dealer claim AND it's an advance replacement
-    if (parsedDealerId && isDealerAdvance) {
-      await tx.dealer.update({
-        where: { id: parsedDealerId },
-        data: { openingPendingBalance: { increment: 1 } }
-      });
-    }
+    // We no longer mutate openingPendingBalance automatically.
+    // It remains a static field for legacy balances.
+    // Total pending is now calculated dynamically (opening balance + active claims).
   });
 
   revalidatePath("/");
@@ -98,15 +94,8 @@ export async function deleteClaim(id: string) {
         shouldDecrementBalance = false;
       }
       
-      if (shouldDecrementBalance && claim.dealerId) {
-        const dealer = await tx.dealer.findUnique({ where: { id: claim.dealerId } });
-        if (dealer && dealer.openingPendingBalance > 0) {
-          await tx.dealer.update({
-            where: { id: claim.dealerId },
-            data: { openingPendingBalance: { decrement: 1 } }
-          });
-        }
-      }
+      // We no longer decrement openingPendingBalance on delete.
+      // Dynamic pending claims will automatically decrease because the claim is deleted.
 
       await tx.claim.delete({ where: { id } });
     });
