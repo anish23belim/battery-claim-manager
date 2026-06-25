@@ -1,97 +1,94 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
-import { Plus, Eye, Filter, X } from "lucide-react";
+import { Plus, Eye, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import DeleteButton from "@/components/common/DeleteButton";
 import SearchBar from "@/components/common/SearchBar";
 import { deleteClaim } from "@/actions/claimActions";
-import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
+import { format } from "date-fns";
 import * as XLSX from "xlsx";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
-import { useSearchParams } from "next/navigation";
-
-export default function ClaimsClient({ initialData, companies = [], dealers = [] }: { initialData: any[], companies?: any[], dealers?: any[] }) {
+export default function ClaimsClient({ 
+  initialData, 
+  companies = [], 
+  dealers = [],
+  totalClaims = 0,
+  currentPage = 1,
+  pageSize = 50
+}: { 
+  initialData: any[], 
+  companies?: any[], 
+  dealers?: any[],
+  totalClaims?: number,
+  currentPage?: number,
+  pageSize?: number
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const initialFilter = searchParams.get('status') || searchParams.get('filter') || "All";
+  const [isPending, startTransition] = useTransition();
 
-  const [q, setQ] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [statusFilter, setStatusFilter] = useState(initialFilter);
-
+  // Local state for immediate UI feedback, synced to URL
+  const [q, setQ] = useState(searchParams.get("q") || "");
+  const [startDate, setStartDate] = useState(searchParams.get("startDate") || "");
+  const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("statusFilter") || "All");
+  
   // Advanced Filters
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [companyFilter, setCompanyFilter] = useState("All");
-  const [dealerFilter, setDealerFilter] = useState("All");
-  const [advanceFilter, setAdvanceFilter] = useState("All");
-  const [settledFilter, setSettledFilter] = useState("All");
+  const [showAdvanced, setShowAdvanced] = useState(
+    !!(searchParams.get("companyFilter") || searchParams.get("dealerFilter") || searchParams.get("advanceFilter") || searchParams.get("settledFilter"))
+  );
+  const [companyFilter, setCompanyFilter] = useState(searchParams.get("companyFilter") || "All");
+  const [dealerFilter, setDealerFilter] = useState(searchParams.get("dealerFilter") || "All");
+  const [advanceFilter, setAdvanceFilter] = useState(searchParams.get("advanceFilter") || "All");
+  const [settledFilter, setSettledFilter] = useState(searchParams.get("settledFilter") || "All");
 
-  const filteredData = initialData.filter((claim) => {
-    // Check Date Range first
-    if (startDate || endDate) {
-      const claimDate = new Date(claim.date);
-      // Strip time from claimDate for accurate day-level comparison
-      claimDate.setHours(0, 0, 0, 0);
+  // Debounce search query update to URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      updateUrl({ q });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [q]);
 
-      if (startDate) {
-        const sDate = new Date(startDate);
-        sDate.setHours(0, 0, 0, 0);
-        if (claimDate < sDate) return false;
-      }
-      if (endDate) {
-        const eDate = new Date(endDate);
-        eDate.setHours(0, 0, 0, 0);
-        if (claimDate > eDate) return false;
-      }
-    }
-
-    // Then check search query
-    if (q) {
-      const lowerQ = q.toLowerCase();
-      const matchesSearch = (claim.claimNumber && claim.claimNumber.toLowerCase().includes(lowerQ)) ||
-        (claim.customerName && claim.customerName.toLowerCase().includes(lowerQ)) ||
-        (claim.customerMobile && claim.customerMobile.toLowerCase().includes(lowerQ)) ||
-        (claim.batteryModel && claim.batteryModel.toLowerCase().includes(lowerQ)) ||
-        (claim.oldSerialNumber && claim.oldSerialNumber.toLowerCase().includes(lowerQ)) ||
-        (claim.dealer?.name && claim.dealer.name.toLowerCase().includes(lowerQ)) ||
-        (claim.company?.name && claim.company.name.toLowerCase().includes(lowerQ));
-      if (!matchesSearch) return false;
-    }
-
-    // Finally check status filter
-    if (statusFilter !== "All") {
-      if (statusFilter === "pending-dealer") {
-        if (!claim.dealerId) return false;
-        if (["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"].includes(claim.status)) return false;
-      } else if (claim.status !== statusFilter) {
-        return false;
-      }
-    }
-
-    // Check Advanced Filters
-    if (companyFilter !== "All" && claim.companyId !== companyFilter) return false;
+  const updateUrl = (updates: Record<string, string | null>) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
     
-    if (dealerFilter !== "All") {
-      if (dealerFilter === "Direct Customer") {
-        if (claim.dealerId) return false;
-      } else if (claim.dealerId !== dealerFilter) {
-        return false;
+    // Reset to page 1 on filter changes (except when explicitly changing page)
+    if (!updates.page) {
+      current.set("page", "1");
+    }
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "All" || value === "") {
+        current.delete(key);
+      } else {
+        current.set(key, value);
       }
-    }
+    });
 
-    if (advanceFilter !== "All") {
-      const isAdv = advanceFilter === "Yes";
-      if (claim.isDealerAdvance !== isAdv) return false;
-    }
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    
+    startTransition(() => {
+      router.push(`${pathname}${query}`);
+    });
+  };
 
-    if (settledFilter !== "All") {
-      const isSet = settledFilter === "Yes";
-      if (claim.isShopSettled !== isSet) return false;
-    }
-
-    return true;
-  });
+  const clearAdvanced = () => {
+    setCompanyFilter("All");
+    setDealerFilter("All");
+    setAdvanceFilter("All");
+    setSettledFilter("All");
+    updateUrl({
+      companyFilter: null,
+      dealerFilter: null,
+      advanceFilter: null,
+      settledFilter: null
+    });
+  };
 
   const getStatusBadgeClass = (status: string) => {
     switch(status) {
@@ -106,7 +103,7 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
   };
 
   const exportToExcel = () => {
-    const exportData = filteredData.map(claim => ({
+    const exportData = initialData.map(claim => ({
       "Claim No": claim.claimNumber,
       "Date": format(new Date(claim.date), 'dd MMM yyyy'),
       "Dealer": claim.dealer ? claim.dealer.name : "Direct Customer",
@@ -126,17 +123,19 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Claims");
     
-    const fileName = `Claims_Export_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+    const fileName = `Claims_Export_Page${currentPage}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   };
 
+  const totalPages = Math.ceil(totalClaims / pageSize);
+
   return (
-    <div>
+    <div style={{ opacity: isPending ? 0.6 : 1, transition: "opacity 0.2s" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
         <h1 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Claims</h1>
         <div style={{ display: "flex", gap: "1rem" }}>
-          <button onClick={exportToExcel} className="btn btn-outline" style={{ borderColor: "var(--success)", color: "var(--success)" }}>
-            Export to Excel
+          <button onClick={exportToExcel} className="btn btn-outline" style={{ borderColor: "var(--success)", color: "var(--success)" }} title="Export current page to Excel">
+            Export (Page {currentPage})
           </button>
           <Link href="/claims/add" className="btn btn-primary">
             <Plus size={18} />
@@ -158,7 +157,10 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
             <select 
               className="form-control" 
               value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                updateUrl({ statusFilter: e.target.value });
+              }}
               style={{ width: "auto" }}
             >
               <option value="All">All Statuses</option>
@@ -176,7 +178,10 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
               type="date" 
               className="form-control" 
               value={startDate} 
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                updateUrl({ startDate: e.target.value });
+              }}
               title="Start Date"
             />
             <span style={{ color: "var(--secondary-foreground)", fontWeight: 500 }}>to</span>
@@ -184,12 +189,18 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
               type="date" 
               className="form-control" 
               value={endDate} 
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                updateUrl({ endDate: e.target.value });
+              }}
               title="End Date"
             />
             {(startDate || endDate) && (
               <button 
-                onClick={() => { setStartDate(""); setEndDate(""); }} 
+                onClick={() => { 
+                  setStartDate(""); setEndDate(""); 
+                  updateUrl({ startDate: null, endDate: null });
+                }} 
                 className="btn btn-outline"
                 style={{ padding: "0.5rem", borderRadius: "var(--radius)" }}
                 title="Clear Dates"
@@ -213,12 +224,7 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
               <h3 style={{ fontSize: "1rem", fontWeight: 600, margin: 0 }}>Advanced Filters</h3>
               <button 
-                onClick={() => {
-                  setCompanyFilter("All");
-                  setDealerFilter("All");
-                  setAdvanceFilter("All");
-                  setSettledFilter("All");
-                }}
+                onClick={clearAdvanced}
                 className="btn btn-ghost"
                 style={{ fontSize: "0.8rem", padding: "0.25rem 0.5rem", height: "auto" }}
               >
@@ -228,14 +234,20 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
               <div>
                 <label style={{ display: "block", fontSize: "0.8rem", marginBottom: "0.25rem", color: "var(--secondary-foreground)" }}>Company</label>
-                <select className="form-control" value={companyFilter} onChange={e => setCompanyFilter(e.target.value)}>
+                <select className="form-control" value={companyFilter} onChange={e => {
+                  setCompanyFilter(e.target.value);
+                  updateUrl({ companyFilter: e.target.value });
+                }}>
                   <option value="All">All Companies</option>
                   {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
               <div>
                 <label style={{ display: "block", fontSize: "0.8rem", marginBottom: "0.25rem", color: "var(--secondary-foreground)" }}>Dealer / Customer</label>
-                <select className="form-control" value={dealerFilter} onChange={e => setDealerFilter(e.target.value)}>
+                <select className="form-control" value={dealerFilter} onChange={e => {
+                  setDealerFilter(e.target.value);
+                  updateUrl({ dealerFilter: e.target.value });
+                }}>
                   <option value="All">All Dealers</option>
                   <option value="Direct Customer">Direct Customers (No Dealer)</option>
                   {dealers.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -243,7 +255,10 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
               </div>
               <div>
                 <label style={{ display: "block", fontSize: "0.8rem", marginBottom: "0.25rem", color: "var(--secondary-foreground)" }}>Dealer Advance Given?</label>
-                <select className="form-control" value={advanceFilter} onChange={e => setAdvanceFilter(e.target.value)}>
+                <select className="form-control" value={advanceFilter} onChange={e => {
+                  setAdvanceFilter(e.target.value);
+                  updateUrl({ advanceFilter: e.target.value });
+                }}>
                   <option value="All">Any</option>
                   <option value="Yes">Yes</option>
                   <option value="No">No</option>
@@ -251,7 +266,10 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
               </div>
               <div>
                 <label style={{ display: "block", fontSize: "0.8rem", marginBottom: "0.25rem", color: "var(--secondary-foreground)" }}>Shop Settled?</label>
-                <select className="form-control" value={settledFilter} onChange={e => setSettledFilter(e.target.value)}>
+                <select className="form-control" value={settledFilter} onChange={e => {
+                  setSettledFilter(e.target.value);
+                  updateUrl({ settledFilter: e.target.value });
+                }}>
                   <option value="All">Any</option>
                   <option value="Yes">Yes</option>
                   <option value="No">No</option>
@@ -275,12 +293,14 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
               </tr>
             </thead>
             <tbody>
-              {filteredData.length === 0 ? (
+              {initialData.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: "center", color: "var(--secondary-foreground)" }}>No claims found</td>
+                  <td colSpan={7} style={{ textAlign: "center", color: "var(--secondary-foreground)", padding: "2rem" }}>
+                    No claims found matching your filters.
+                  </td>
                 </tr>
               ) : (
-                filteredData.map((claim) => (
+                initialData.map((claim) => (
                   <tr key={claim.id}>
                     <td>
                       <div style={{ fontWeight: 500 }}>{claim.claimNumber}</div>
@@ -323,6 +343,60 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
             </tbody>
           </table>
         </div>
+
+        {/* Pagination UI */}
+        {totalPages > 1 && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem", padding: "1rem", backgroundColor: "var(--background)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
+            <div style={{ fontSize: "0.875rem", color: "var(--secondary-foreground)" }}>
+              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalClaims)} of {totalClaims} claims
+            </div>
+            <div style={{ display: "flex", gap: "0.25rem" }}>
+              <button 
+                onClick={() => updateUrl({ page: String(currentPage - 1) })} 
+                disabled={currentPage === 1}
+                className="btn btn-outline"
+                style={{ padding: "0.5rem", display: "flex", alignItems: "center" }}
+              >
+                <ChevronLeft size={16} />
+              </button>
+              
+              {/* Simple page numbers */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum = currentPage;
+                // Center the current page if possible
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => updateUrl({ page: String(pageNum) })}
+                    className={`btn ${currentPage === pageNum ? 'btn-primary' : 'btn-outline'}`}
+                    style={{ padding: "0.5rem 1rem" }}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button 
+                onClick={() => updateUrl({ page: String(currentPage + 1) })} 
+                disabled={currentPage === totalPages}
+                className="btn btn-outline"
+                style={{ padding: "0.5rem", display: "flex", alignItems: "center" }}
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

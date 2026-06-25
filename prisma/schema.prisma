@@ -71,6 +71,12 @@ model Claim {
   batchId         String?
   batch           Batch?         @relation(fields: [batchId], references: [id])
   deliveryItems   DeliveryItem[]
+
+  @@index([dealerId])
+  @@index([companyId])
+  @@index([status])
+  @@index([date])
+  @@index([createdAt])
 }
 
 model Batch {
@@ -82,6 +88,8 @@ model Batch {
   status      String   @default("Sent")
   remarks     String?
   claims      Claim[]
+
+  @@index([sentDate])
 }
 
 model Delivery {
@@ -93,6 +101,9 @@ model Delivery {
   quantity       Int            @default(0)
   remarks        String?
   items          DeliveryItem[]
+
+  @@index([date])
+  @@index([dealerId])
 }
 
 model DeliveryItem {
