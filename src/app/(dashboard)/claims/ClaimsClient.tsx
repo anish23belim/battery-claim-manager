@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Plus, Eye } from "lucide-react";
+import { Plus, Eye, Filter, X } from "lucide-react";
 import DeleteButton from "@/components/common/DeleteButton";
 import SearchBar from "@/components/common/SearchBar";
 import { deleteClaim } from "@/actions/claimActions";
@@ -11,7 +11,7 @@ import * as XLSX from "xlsx";
 
 import { useSearchParams } from "next/navigation";
 
-export default function ClaimsClient({ initialData }: { initialData: any[] }) {
+export default function ClaimsClient({ initialData, companies = [], dealers = [] }: { initialData: any[], companies?: any[], dealers?: any[] }) {
   const searchParams = useSearchParams();
   const initialFilter = searchParams.get('status') || searchParams.get('filter') || "All";
 
@@ -19,6 +19,13 @@ export default function ClaimsClient({ initialData }: { initialData: any[] }) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [statusFilter, setStatusFilter] = useState(initialFilter);
+
+  // Advanced Filters
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [companyFilter, setCompanyFilter] = useState("All");
+  const [dealerFilter, setDealerFilter] = useState("All");
+  const [advanceFilter, setAdvanceFilter] = useState("All");
+  const [settledFilter, setSettledFilter] = useState("All");
 
   const filteredData = initialData.filter((claim) => {
     // Check Date Range first
@@ -60,6 +67,27 @@ export default function ClaimsClient({ initialData }: { initialData: any[] }) {
       } else if (claim.status !== statusFilter) {
         return false;
       }
+    }
+
+    // Check Advanced Filters
+    if (companyFilter !== "All" && claim.companyId !== companyFilter) return false;
+    
+    if (dealerFilter !== "All") {
+      if (dealerFilter === "Direct Customer") {
+        if (claim.dealerId) return false;
+      } else if (claim.dealerId !== dealerFilter) {
+        return false;
+      }
+    }
+
+    if (advanceFilter !== "All") {
+      const isAdv = advanceFilter === "Yes";
+      if (claim.isDealerAdvance !== isAdv) return false;
+    }
+
+    if (settledFilter !== "All") {
+      const isSet = settledFilter === "Yes";
+      if (claim.isShopSettled !== isSet) return false;
     }
 
     return true;
@@ -169,8 +197,69 @@ export default function ClaimsClient({ initialData }: { initialData: any[] }) {
                 Clear
               </button>
             )}
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className={`btn ${showAdvanced ? 'btn-primary' : 'btn-outline'}`}
+              style={{ padding: "0.5rem", borderRadius: "var(--radius)", display: "flex", alignItems: "center", gap: "0.25rem" }}
+            >
+              <Filter size={16} />
+              Advanced
+            </button>
           </div>
         </div>
+
+        {showAdvanced && (
+          <div style={{ backgroundColor: "var(--background)", border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: "1rem", marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h3 style={{ fontSize: "1rem", fontWeight: 600, margin: 0 }}>Advanced Filters</h3>
+              <button 
+                onClick={() => {
+                  setCompanyFilter("All");
+                  setDealerFilter("All");
+                  setAdvanceFilter("All");
+                  setSettledFilter("All");
+                }}
+                className="btn btn-ghost"
+                style={{ fontSize: "0.8rem", padding: "0.25rem 0.5rem", height: "auto" }}
+              >
+                Clear Advanced Filters
+              </button>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", marginBottom: "0.25rem", color: "var(--secondary-foreground)" }}>Company</label>
+                <select className="form-control" value={companyFilter} onChange={e => setCompanyFilter(e.target.value)}>
+                  <option value="All">All Companies</option>
+                  {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", marginBottom: "0.25rem", color: "var(--secondary-foreground)" }}>Dealer / Customer</label>
+                <select className="form-control" value={dealerFilter} onChange={e => setDealerFilter(e.target.value)}>
+                  <option value="All">All Dealers</option>
+                  <option value="Direct Customer">Direct Customers (No Dealer)</option>
+                  {dealers.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", marginBottom: "0.25rem", color: "var(--secondary-foreground)" }}>Dealer Advance Given?</label>
+                <select className="form-control" value={advanceFilter} onChange={e => setAdvanceFilter(e.target.value)}>
+                  <option value="All">Any</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", marginBottom: "0.25rem", color: "var(--secondary-foreground)" }}>Shop Settled?</label>
+                <select className="form-control" value={settledFilter} onChange={e => setSettledFilter(e.target.value)}>
+                  <option value="All">Any</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="table-container">
           <table className="table">

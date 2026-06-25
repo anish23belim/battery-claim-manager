@@ -5,19 +5,23 @@ import ClaimsClient from "./ClaimsClient";
 import { Suspense } from "react";
 
 export default async function Page() {
-  const claims = await prisma.claim.findMany({
-    where: { NOT: { claimNumber: { startsWith: 'LEGACY-' } } },
-    include: {
-      dealer: true,
-      company: true,
-      batch: true
-    },
-    orderBy: { createdAt: "desc" }
-  });
+  const [claims, companies, dealers] = await Promise.all([
+    prisma.claim.findMany({
+      where: { NOT: { claimNumber: { startsWith: 'LEGACY-' } } },
+      include: {
+        dealer: true,
+        company: true,
+        batch: true
+      },
+      orderBy: { createdAt: "desc" }
+    }),
+    prisma.company.findMany({ orderBy: { name: "asc" } }),
+    prisma.dealer.findMany({ orderBy: { name: "asc" } })
+  ]);
 
   return (
     <Suspense fallback={<div>Loading claims...</div>}>
-      <ClaimsClient initialData={claims} />
+      <ClaimsClient initialData={claims} companies={companies} dealers={dealers} />
     </Suspense>
   );
 }
