@@ -284,7 +284,13 @@ export default function ClaimsClient({ initialData, companies = [], dealers = []
                   <tr key={claim.id}>
                     <td>
                       <div style={{ fontWeight: 500 }}>{claim.claimNumber}</div>
-                      <div style={{ fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>SN: {claim.oldSerialNumber || "N/A"}</div>
+                      <div style={{ fontSize: "0.8rem", color: "var(--secondary-foreground)" }}>Old SN: {claim.oldSerialNumber || "N/A"}</div>
+                      {claim.dealerReplacementSerialNumber && (
+                         <div style={{ fontSize: "0.8rem", color: "var(--success)" }}>New SN: {claim.dealerReplacementSerialNumber}</div>
+                      )}
+                      {claim.shopReplacementSerialNumber && (
+                         <div style={{ fontSize: "0.8rem", color: "var(--primary)" }}>Shop SN: {claim.shopReplacementSerialNumber}</div>
+                      )}
                     </td>
                     <td>{format(new Date(claim.date), 'dd MMM yyyy')}</td>
                     <td>
