@@ -29,6 +29,30 @@ export async function addCompany(formData: FormData) {
 }
 
 
+export async function editCompany(formData: FormData) {
+  const id = formData.get("id") as string;
+  const name = formData.get("name") as string;
+  const brandName = formData.get("brandName") as string;
+  const contactPerson = formData.get("contactPerson") as string;
+  const mobile = formData.get("mobile") as string;
+  const address = formData.get("address") as string;
+
+  await prisma.company.update({
+    where: { id },
+    data: {
+      name,
+      brandName,
+      contactPerson,
+      mobile,
+      address
+    }
+  });
+
+  revalidatePath("/");
+  revalidatePath("/companies");
+  redirect("/companies");
+}
+
 export async function deleteCompany(id: string) {
   try {
     await prisma.$transaction(async (tx) => {
