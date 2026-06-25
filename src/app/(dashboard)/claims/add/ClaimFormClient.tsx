@@ -67,6 +67,10 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
   return (
     <form action={addClaim} className="form-grid">
       
+      <div className="col-span-2" style={{ borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem", marginBottom: "0.5rem" }}>
+        <h3 style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--primary)", margin: 0 }}>1. Dealer & Customer Information</h3>
+      </div>
+
       <div className="form-group col-span-2" style={{ marginBottom: "-1rem" }}>
         <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontWeight: 500 }}>
           <input 
@@ -125,6 +129,10 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
       <div className="form-group">
         <label htmlFor="customerMobile">Customer Mobile {isDirectCustomer && "*"}</label>
         <input type="tel" id="customerMobile" name="customerMobile" className="form-control" required={isDirectCustomer} />
+      </div>
+
+      <div className="col-span-2" style={{ borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem", marginTop: "1rem", marginBottom: "0.5rem" }}>
+        <h3 style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--primary)", margin: 0 }}>2. Battery Details</h3>
       </div>
 
       <div className="form-group">
@@ -199,6 +207,10 @@ export default function ClaimFormClient({ dealers, companies }: { dealers: any[]
           <option value="Solar">Solar</option>
           <option value="Other">Other</option>
         </select>
+      </div>
+
+      <div className="col-span-2" style={{ borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem", marginTop: "1rem", marginBottom: "0.5rem" }}>
+        <h3 style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--primary)", margin: 0 }}>3. Warranty & Problem Info</h3>
       </div>
 
       <div className="form-group">
