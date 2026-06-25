@@ -130,7 +130,7 @@ export default function ClaimsClient({
   const totalPages = Math.ceil(totalClaims / pageSize);
 
   return (
-    <div style={{ opacity: isPending ? 0.6 : 1, transition: "opacity 0.2s" }}>
+    <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
         <h1 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Claims</h1>
         <div style={{ display: "flex", gap: "1rem" }}>
