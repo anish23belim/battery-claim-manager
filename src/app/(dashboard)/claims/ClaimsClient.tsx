@@ -46,7 +46,12 @@ export default function ClaimsClient({
   const [settledFilter, setSettledFilter] = useState(searchParams.get("settledFilter") || "All");
 
   // Debounce search query update to URL
+  const isFirstRender = React.useRef(true);
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     const timer = setTimeout(() => {
       updateUrl({ q });
     }, 500);
