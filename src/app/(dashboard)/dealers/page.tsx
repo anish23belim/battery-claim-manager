@@ -3,20 +3,20 @@ import prisma from "@/lib/prisma";
 import DealersClient from "./DealersClient";
 
 export default async function Page() {
-  const dealers = await prisma.dealer.findMany({
-    orderBy: { name: "asc" }
-  });
-
-  // Get active pending claims for dealers
-  const pendingClaims = await prisma.claim.groupBy({
-    by: ['dealerId'],
-    where: {
-      dealerId: { not: null },
-      status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"] },
-      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
-    },
-    _count: { id: true }
-  });
+  const [dealers, pendingClaims] = await Promise.all([
+    prisma.dealer.findMany({
+      orderBy: { name: "asc" }
+    }),
+    prisma.claim.groupBy({
+      by: ['dealerId'],
+      where: {
+        dealerId: { not: null },
+        status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"] },
+        NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+      },
+      _count: { id: true }
+    })
+  ]);
 
   const dealersWithTotalPending = dealers.map(dealer => {
     const activePending = pendingClaims.find(p => p.dealerId === dealer.id)?._count.id || 0;

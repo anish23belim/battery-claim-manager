@@ -5,18 +5,27 @@ import ReportTable from "@/components/reports/ReportTable";
 
 
 export default async function ReportsPage() {
-  const dealers = await prisma.dealer.findMany();
-  
-  // Get all active pending claims for dealers
-  const pendingClaims = await prisma.claim.groupBy({
-    by: ['dealerId'],
-    where: {
-      dealerId: { not: null },
-      status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"] },
-      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
-    },
-    _count: { id: true }
-  });
+  const [dealers, pendingClaims, pendingAtCompany, companies] = await Promise.all([
+    prisma.dealer.findMany(),
+    prisma.claim.groupBy({
+      by: ['dealerId'],
+      where: {
+        dealerId: { not: null },
+        status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"] },
+        NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+      },
+      _count: { id: true }
+    }),
+    prisma.claim.groupBy({
+      by: ['companyId'],
+      where: { 
+        status: "Sent to Company",
+        NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+      },
+      _count: { id: true }
+    }),
+    prisma.company.findMany()
+  ]);
 
   const dealerReportData = dealers.map(d => {
     const activePending = pendingClaims.find(p => p.dealerId === d.id)?._count.id || 0;
@@ -32,18 +41,6 @@ export default async function ReportsPage() {
   }).filter(row => row["Pending Replacements"] > 0)
     .sort((a, b) => b["Pending Replacements"] - a["Pending Replacements"]);
 
-  // 2. Company-wise Pending Claims Report
-  // Status: "Sent to Company"
-  const pendingAtCompany = await prisma.claim.groupBy({
-    by: ['companyId'],
-    where: { 
-      status: "Sent to Company",
-      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
-    },
-    _count: { id: true }
-  });
-  
-  const companies = await prisma.company.findMany();
   const companyReportData = pendingAtCompany.map(p => {
     const company = companies.find(c => c.id === p.companyId);
     return {
