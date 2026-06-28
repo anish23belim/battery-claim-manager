@@ -7,26 +7,24 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     // 1. Fetch all data
-    const [claims, dealers, companies, deliveries, batches] = await Promise.all([
-      prisma.claim.findMany({
-        include: { dealer: true, company: true },
-        orderBy: { date: 'desc' }
-      }),
-      prisma.dealer.findMany({
-        orderBy: { name: 'asc' }
-      }),
-      prisma.company.findMany({
-        orderBy: { name: 'asc' }
-      }),
-      prisma.delivery.findMany({
-        include: { dealer: true, items: { include: { claim: true } } },
-        orderBy: { date: 'desc' }
-      }),
-      prisma.batch.findMany({
-        include: { company: true, claims: true },
-        orderBy: { sentDate: 'desc' }
-      })
-    ]);
+    const claims = await prisma.claim.findMany({
+      include: { dealer: true, company: true },
+      orderBy: { date: 'desc' }
+    });
+    const dealers = await prisma.dealer.findMany({
+      orderBy: { name: 'asc' }
+    });
+    const companies = await prisma.company.findMany({
+      orderBy: { name: 'asc' }
+    });
+    const deliveries = await prisma.delivery.findMany({
+      include: { dealer: true, items: { include: { claim: true } } },
+      orderBy: { date: 'desc' }
+    });
+    const batches = await prisma.batch.findMany({
+      include: { company: true, claims: true },
+      orderBy: { sentDate: 'desc' }
+    });
 
     // 2. Format Data for Excel
     const formattedClaims = claims.map(c => ({

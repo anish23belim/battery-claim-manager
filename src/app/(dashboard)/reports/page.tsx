@@ -5,27 +5,31 @@ import ReportTable from "@/components/reports/ReportTable";
 
 
 export default async function ReportsPage() {
-  const [dealers, pendingClaims, pendingAtCompany, companies] = await Promise.all([
-    prisma.dealer.findMany(),
-    prisma.claim.groupBy({
-      by: ['dealerId'],
-      where: {
-        dealerId: { not: null },
-        status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"] },
-        NOT: { claimNumber: { startsWith: 'LEGACY-' } }
-      },
-      _count: { id: true }
-    }),
-    prisma.claim.groupBy({
-      by: ['companyId'],
-      where: { 
-        status: "Sent to Company",
-        NOT: { claimNumber: { startsWith: 'LEGACY-' } }
-      },
-      _count: { id: true }
-    }),
-    prisma.company.findMany()
-  ]);
+  // Fetch sequentially to prevent Prisma connection pool timeout
+  const dealers = await prisma.dealer.findMany({
+    orderBy: { name: "asc" }
+  });
+  const pendingClaims = await prisma.claim.groupBy({
+    by: ['dealerId'],
+    where: {
+      dealerId: { not: null },
+      isShopSettled: false,
+      status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)", "Delivered to Customer"] },
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+    },
+    _count: { id: true }
+  });
+  const pendingAtCompany = await prisma.claim.groupBy({
+    by: ['companyId'],
+    where: {
+      status: "Sent to Company",
+      NOT: { claimNumber: { startsWith: 'LEGACY-' } }
+    },
+    _count: { id: true }
+  });
+  const companies = await prisma.company.findMany({
+    orderBy: { name: "asc" }
+  });
 
   const dealerReportData = dealers.map(d => {
     const activePending = pendingClaims.find(p => p.dealerId === d.id)?._count.id || 0;

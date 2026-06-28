@@ -79,22 +79,21 @@ export default async function Page({
     where.isShopSettled = settledFilter === "Yes";
   }
 
-  const [claims, totalClaims, companies, dealers] = await Promise.all([
-    prisma.claim.findMany({
-      where,
-      include: {
-        dealer: true,
-        company: true,
-        batch: true
-      },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize
-    }),
-    prisma.claim.count({ where }),
-    prisma.company.findMany({ orderBy: { name: "asc" } }),
-    prisma.dealer.findMany({ orderBy: { name: "asc" } })
-  ]);
+  const claims = await prisma.claim.findMany({
+    where,
+    include: {
+      dealer: true,
+      company: true,
+      batch: true
+    },
+    orderBy: { createdAt: "desc" },
+    skip: (page - 1) * pageSize,
+    take: pageSize
+  });
+  
+  const totalClaims = await prisma.claim.count({ where });
+  const companies = await prisma.company.findMany({ orderBy: { name: "asc" } });
+  const dealers = await prisma.dealer.findMany({ orderBy: { name: "asc" } });
 
   return (
     <Suspense fallback={<div>Loading claims...</div>}>
