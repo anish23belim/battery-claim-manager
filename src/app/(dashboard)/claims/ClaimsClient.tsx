@@ -46,17 +46,8 @@ export default function ClaimsClient({
   const [settledFilter, setSettledFilter] = useState(searchParams.get("settledFilter") || "All");
 
   // Debounce search query update to URL
-  const isFirstRender = React.useRef(true);
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    const timer = setTimeout(() => {
-      updateUrl({ q });
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [q]);
+  // Removed auto-debounce to prevent typing lag.
+  // Search will now trigger on Enter key press via the form submit.
 
   const updateUrl = (updates: Record<string, string | null>) => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
@@ -151,13 +142,18 @@ export default function ClaimsClient({
 
       <div className="card">
         <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
-          <div style={{ flex: "1 1 300px" }}>
-            <SearchBar 
-              placeholder="Search claims, name, serial, number..." 
-              value={q} 
-              onChange={setQ} 
-            />
-          </div>
+          <form style={{ flex: "1 1 300px" }} onSubmit={(e) => { e.preventDefault(); updateUrl({ q }); }}>
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+              <SearchBar 
+                placeholder="Search claims... (Press Enter)" 
+                value={q} 
+                onChange={setQ} 
+              />
+              <button type="submit" className="btn btn-primary" style={{ padding: "0.5rem 1rem", borderRadius: "var(--radius)" }}>
+                Search
+              </button>
+            </div>
+          </form>
           <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
             <select 
               className="form-control" 
