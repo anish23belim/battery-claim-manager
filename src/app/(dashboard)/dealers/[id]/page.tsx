@@ -8,36 +8,36 @@ import { format } from "date-fns";
 export default async function DealerDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
-  const dealer = await prisma.dealer.findUnique({
-    where: { id },
-    include: {
-      claims: {
-        orderBy: { createdAt: 'desc' },
-        take: 50,
-        include: { company: true }
-      },
-      deliveries: {
-        orderBy: { date: 'desc' },
-        take: 50
+  const [dealer, activeClaims] = await Promise.all([
+    prisma.dealer.findUnique({
+      where: { id },
+      include: {
+        claims: {
+          orderBy: { createdAt: 'desc' },
+          take: 50,
+          include: { company: true }
+        },
+        deliveries: {
+          orderBy: { date: 'desc' },
+          take: 50
+        }
       }
-    }
-  });
-
+    }),
+    prisma.claim.count({
+      where: {
+        dealerId: id,
+        claimNumber: { not: { startsWith: 'LEGACY-' } },
+        isShopSettled: false,
+        status: {
+          notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)", "Delivered to Customer"]
+        }
+      }
+    })
+  ]);
+  
   if (!dealer) {
     notFound();
   }
-
-  // Calculate dynamic balance
-  const activeClaims = await prisma.claim.count({
-    where: {
-      dealerId: id,
-      claimNumber: { not: { startsWith: 'LEGACY-' } },
-      isShopSettled: false,
-      status: {
-        notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)", "Delivered to Customer"]
-      }
-    }
-  });
   
   const totalPending = dealer.openingPendingBalance + activeClaims;
 

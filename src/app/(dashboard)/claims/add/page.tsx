@@ -5,8 +5,10 @@ import prisma from "@/lib/prisma";
 import ClaimFormClient from "./ClaimFormClient";
 
 export default async function AddClaimPage() {
-  const dealers = await prisma.dealer.findMany({ orderBy: { name: "asc" } });
-  const companies = await prisma.company.findMany({ orderBy: { name: "asc" } });
+  const [dealers, companies] = await Promise.all([
+    prisma.dealer.findMany({ orderBy: { name: "asc" } }),
+    prisma.company.findMany({ orderBy: { name: "asc" } })
+  ]);
 
   return (
     <div style={{ maxWidth: "850px", margin: "0 auto", padding: "1rem 0" }}>

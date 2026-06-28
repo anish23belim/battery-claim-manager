@@ -7,22 +7,20 @@ import BatchForm from "@/components/batches/BatchForm";
 
 
 export default async function AddBatchPage() {
-  const companies = await prisma.company.findMany({ orderBy: { name: "asc" } });
-  
-  // Fetch claims that are NOT closed or delivered, and NOT already in a batch (or allow re-batching depending on logic)
-  // The prompt says "mark them as Sent to Company, Approved, Rejected, Replacement Received"
-  // So we just fetch all active claims that aren't closed.
-  const claims = await prisma.claim.findMany({
-    where: {
-      status: {
-        notIn: ["Closed", "Delivered to Dealer"]
-      }
-    },
-    include: {
-      dealer: { select: { name: true } }
-    },
-    orderBy: { date: "desc" }
-  });
+  const [companies, claims] = await Promise.all([
+    prisma.company.findMany({ orderBy: { name: "asc" } }),
+    prisma.claim.findMany({
+      where: {
+        status: {
+          notIn: ["Closed", "Delivered to Dealer"]
+        }
+      },
+      include: {
+        dealer: { select: { name: true } }
+      },
+      orderBy: { date: "desc" }
+    })
+  ]);
 
   return (
     <div>

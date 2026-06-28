@@ -7,23 +7,20 @@ import DeliveryForm from "@/components/deliveries/DeliveryForm";
 
 
 export default async function AddDeliveryPage() {
-  const dealers = await prisma.dealer.findMany({ orderBy: { name: "asc" } });
-  
-  // Fetch claims that are "Replacement Received from Company" or equivalent to be delivered to dealer.
-  // Actually, any claim that is not closed or delivered. Wait, standard flow is:
-  // Received -> Sent -> Replacement Received -> Delivered -> Closed.
-  // We'll show claims that are not Delivered or Closed.
-  const claims = await prisma.claim.findMany({
-    where: {
-      status: {
-        notIn: ["Closed", "Delivered to Dealer"]
-      }
-    },
-    include: {
-      company: { select: { name: true } }
-    },
-    orderBy: { date: "desc" }
-  });
+  const [dealers, claims] = await Promise.all([
+    prisma.dealer.findMany({ orderBy: { name: "asc" } }),
+    prisma.claim.findMany({
+      where: {
+        status: {
+          notIn: ["Closed", "Delivered to Dealer"]
+        }
+      },
+      include: {
+        company: { select: { name: true } }
+      },
+      orderBy: { date: "desc" }
+    })
+  ]);
 
   return (
     <div>
