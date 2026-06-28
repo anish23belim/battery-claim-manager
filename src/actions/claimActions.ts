@@ -170,13 +170,6 @@ export async function settleDealerAdvance(id: string, shopReplacementSerialNumbe
   await prisma.$transaction(async (tx) => {
     const claim = await tx.claim.findUnique({ where: { id } });
     if (!claim || !claim.isDealerAdvance || claim.isShopSettled) return;
-    
-    if (claim.dealerId) {
-      await tx.dealer.update({
-        where: { id: claim.dealerId },
-        data: { openingPendingBalance: { decrement: 1 } }
-      });
-    }
 
     await tx.claim.update({
       where: { id },

@@ -32,8 +32,9 @@ export default async function DealerDetailsPage({ params }: { params: Promise<{ 
     where: {
       dealerId: id,
       claimNumber: { not: { startsWith: 'LEGACY-' } },
+      isShopSettled: false,
       status: {
-        notIn: ["Delivered to Customer", "Shop Stock"]
+        notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)", "Delivered to Customer"]
       }
     }
   });

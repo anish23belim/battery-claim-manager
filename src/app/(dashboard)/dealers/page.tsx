@@ -11,7 +11,8 @@ export default async function Page() {
       by: ['dealerId'],
       where: {
         dealerId: { not: null },
-        status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)"] },
+        isShopSettled: false,
+        status: { notIn: ["Delivered to Dealer", "Closed", "Closed (Moved to Shop Stock)", "Delivered to Customer"] },
         NOT: { claimNumber: { startsWith: 'LEGACY-' } }
       },
       _count: { id: true }
