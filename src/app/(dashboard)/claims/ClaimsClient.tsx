@@ -54,7 +54,7 @@ export default function ClaimsClient({
     }
     const timer = setTimeout(() => {
       updateUrl({ q });
-    }, 500);
+    }, 300);
     return () => clearTimeout(timer);
   }, [q]);
 
@@ -78,7 +78,7 @@ export default function ClaimsClient({
     const query = search ? `?${search}` : "";
     
     startTransition(() => {
-      router.push(`${pathname}${query}`);
+      router.replace(`${pathname}${query}`, { scroll: false });
     });
   };
 
@@ -284,7 +284,7 @@ export default function ClaimsClient({
           </div>
         )}
 
-        <div className="table-container">
+        <div className="table-container" style={{ opacity: isPending ? 0.5 : 1, transition: "opacity 0.2s ease-in-out" }}>
           <table className="table">
             <thead>
               <tr>
